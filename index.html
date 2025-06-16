@@ -95,7 +95,6 @@
     <button onclick="location='pricing.html'">Upgrade or View Plans</button>
   </div>
 
-  <!-- REPLACED SCRIPT BLOCK -->
   <script>
     // 1) Load stored user & plan from activation
     const storedEmail = localStorage.getItem("cc_user") || "";
@@ -119,28 +118,29 @@
 
     // 4) postData helper
     async function postData(url, body) {
-      const headers = { "Content-Type": "application/json" };
-      headers["X-User-Plan"] = getPlan();
-      headers["X-User-Id"]   = window.currentUser.email;
+      const headers = {
+        "Content-Type": "application/json",
+        "X-User-Plan":  getPlan(),
+        "X-User-Id":    window.currentUser.email
+      };
       const res = await fetch(url, {
-        method: "POST",
+        method:  "POST",
         headers,
-        body: JSON.stringify(body)
+        body:    JSON.stringify(body)
       });
       return res.json();
     }
 
     // HookBrain call
     document.getElementById("generateCaptions").onclick = async () => {
-      const niche    = document.getElementById("niche").value,
-            tone     = document.getElementById("tone").value,
-            goal     = document.getElementById("goal").value,
-            topic    = document.getElementById("topic").value,
-            postType = document.getElementById("postType").value;
-      const d = await postData(
-        "https://creatorcore-api.vercel.app/api/hookbrain",
-        { niche, tone, goal, topic, postType }
-      );
+      const data = {
+        niche:    document.getElementById("niche").value,
+        tone:     document.getElementById("tone").value,
+        goal:     document.getElementById("goal").value,
+        topic:    document.getElementById("topic").value,
+        postType: document.getElementById("postType").value
+      };
+      const d = await postData("https://creatorcore-api.vercel.app/api/hookbrain", data);
       document.getElementById("captionsOutput").textContent = d.captions?.join("\n\n") || d.error;
       document.getElementById("scriptOutput").textContent   = d.script                    || d.error;
       document.getElementById("ideaOutput").textContent     = d.idea                      || d.error;
@@ -149,14 +149,13 @@
 
     // CourseForge call
     document.getElementById("generateCourse").onclick = async () => {
-      const t = document.getElementById("cfTopic").value,
-            a = document.getElementById("cfAudience").value,
-            f = document.getElementById("cfFormat").value,
-            l = document.getElementById("cfLevel").value;
-      const d = await postData(
-        "https://creatorcore-api.vercel.app/api/courseforge",
-        { topic: t, audience: a, format: f, level: l }
-      );
+      const payload = {
+        topic:    document.getElementById("cfTopic").value,
+        audience: document.getElementById("cfAudience").value,
+        format:   document.getElementById("cfFormat").value,
+        level:    document.getElementById("cfLevel").value
+      };
+      const d = await postData("https://creatorcore-api.vercel.app/api/courseforge", payload);
       document.getElementById("courseOutput").textContent = d.course || d.error;
     };
   </script>
