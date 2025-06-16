@@ -1,79 +1,151 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>CreatorCore AI Toolkit</title>
-  <style>
-    body { font-family: sans-serif; padding: 2rem; background: #f9f9f9; }
-    .container { max-width: 600px; margin: auto; background: #fff; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 2rem; }
-    input, select { display: block; width: 100%; margin: .5rem 0; padding: .5rem; border: 1px solid #ddd; border-radius: 4px; }
-    button { padding: .75rem 1.5rem; background: #0066ff; color: #fff; border: none; border-radius: 4px; cursor: pointer; margin-top: .5rem; }
-    pre { background: #f0f0f0; padding: 1rem; border-radius: 4px; white-space: pre-wrap; margin-top: 1rem; }
-  </style>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>CreatorCore AI Demo</title>
+<style>
+  body{font-family:sans-serif;padding:2rem;background:#f9f9f9}
+  nav{text-align:center;margin-bottom:1rem}
+  img.logo{max-width:200px;display:block;margin:0 auto 1rem;}
+  .container{max-width:600px;margin:auto;background:#fff;padding:2rem;
+    border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.1);margin-bottom:2rem}
+  input,select,button,iframe{display:block;width:100%;margin:.5rem 0;
+    padding:.5rem;border:1px solid #ddd;border-radius:4px}
+  button{background:#0066ff;color:#fff;border:none;cursor:pointer}
+  pre{background:#f0f0f0;padding:1rem;border-radius:4px;white-space:pre-wrap}
+  #planSelector{margin-bottom:1rem;display:none}
+  #emailOverlay{position:fixed;top:0;left:0;width:100%;height:100%;
+    background:rgba(0,0,0,0.5);display:flex;align-items:center;
+    justify-content:center;z-index:1000}
+  #emailOverlay .box{background:#fff;padding:2rem;border-radius:8px;max-width:320px;width:100%}
+</style>
 </head>
 <body>
 
-  <!-- Hook Brain Module -->
-  <div class="container">
-    <h2>Hook Brain (Caption Generator)</h2>
-    <input id="niche" placeholder="Niche (e.g. Fitness)" />
-    <input id="tone" placeholder="Tone (e.g. Inspirational)" />
-    <input id="goal" placeholder="Goal (e.g. Engagement)" />
-    <input id="topic" placeholder="Topic (e.g. Consistency)" />
-    <button id="generateCaptions">Generate Captions</button>
-    <pre id="captionsOutput">Captions will appear here…</pre>
+  <!-- Logo & Banner -->
+  <img class="logo" src="/_vercel/image?url=https://creatorcore-web.vercel.app/logo.png&w=200&h=200" alt="CreatorCore AI Logo"/>
+  <img src="/_vercel/image?url=https://creatorcore-web.vercel.app/banner.png&w=1000&h=250" alt="CreatorCore AI Banner"/>
+
+  <!-- Nav -->
+  <nav>
+    <a href="index.html">Demo</a> |
+    <a href="pricing.html">Pricing</a>
+  </nav>
+
+  <!-- Email Capture Overlay -->
+  <div id="emailOverlay">
+    <div class="box">
+      <h3>Enter your email to continue</h3>
+      <input id="loginEmail" type="email" placeholder="you@example.com"/>
+      <button id="loginBtn">Submit</button>
+    </div>
   </div>
 
-  <!-- Course Forge Module -->
+  <!-- Dev Mode Plan Selector -->
+  <div id="planSelector" class="container">
+    <label><strong>DEV MODE: Your Plan</strong></label>
+    <select id="userPlan">
+      <option value="free">Free</option>
+      <option value="creator">Creator</option>
+      <option value="pro">Pro</option>
+      <option value="lifetime">Lifetime</option>
+    </select>
+  </div>
+
+  <!-- Hook Brain -->
+  <div class="container">
+    <h2>Hook Brain (Captions + Script + Idea + SEO & Hashtags)</h2>
+    <input id="niche"    placeholder="Niche (e.g. Fitness)"/>
+    <input id="tone"     placeholder="Tone (e.g. Inspirational)"/>
+    <input id="goal"     placeholder="Goal (e.g. Engagement)"/>
+    <input id="topic"    placeholder="Topic (e.g. Consistency)"/>
+    <select id="postType">
+      <option disabled selected>Post Type</option>
+      <option>Instagram</option><option>TikTok</option><option>Reels</option>
+      <option>YouTube</option><option>Shorts</option>
+    </select>
+    <button id="generateCaptions">Generate Content</button>
+    <pre id="captionsOutput">Captions…</pre>
+    <pre id="scriptOutput">Script…</pre>
+    <pre id="ideaOutput">Idea…</pre>
+    <pre id="seoOutput">SEO Keywords & Hashtags…</pre>
+    <button onclick="location='pricing.html'">Upgrade or View Plans</button>
+  </div>
+
+  <!-- Course Forge -->
   <div class="container">
     <h2>Course Forge (Course Builder)</h2>
-    <input id="cfTopic" placeholder="Course Topic (e.g. Budgeting)" />
-    <input id="cfAudience" placeholder="Audience (e.g. Busy moms)" />
+    <input id="cfTopic"    placeholder="Course Topic (e.g. Budgeting)"/>
+    <input id="cfAudience" placeholder="Audience (e.g. Busy moms)"/>
     <select id="cfFormat">
-      <option value="" disabled selected>Format (video/written/hybrid)</option>
-      <option value="video">Video</option>
-      <option value="written">Written</option>
-      <option value="hybrid">Hybrid</option>
+      <option disabled selected>Format</option>
+      <option>video</option><option>written</option><option>hybrid</option>
     </select>
     <select id="cfLevel">
-      <option value="" disabled selected>Skill Level</option>
-      <option value="beginner">Beginner</option>
-      <option value="intermediate">Intermediate</option>
-      <option value="expert">Expert</option>
+      <option disabled selected>Skill Level</option>
+      <option>beginner</option><option>intermediate</option><option>expert</option>
     </select>
     <button id="generateCourse">Generate Course</button>
-    <pre id="courseOutput">Course outline will appear here…</pre>
+    <pre id="courseOutput">Course outline…</pre>
+    <button onclick="location='pricing.html'">Upgrade or View Plans</button>
   </div>
 
   <script>
-    async function postData(url, body) {
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
+    // Login & currentUser
+    const devList = (process.env.DEV_USER_IDS||"").split(",");
+    let email = localStorage.getItem("cc_user");
+    if (!email) {
+      document.getElementById("emailOverlay").style.display="flex";
+      document.getElementById("loginBtn").onclick = () => {
+        const e=document.getElementById("loginEmail").value.trim();
+        if (!e) return alert("Email required");
+        localStorage.setItem("cc_user", e);
+        email=e; window.currentUser={email,plan:"free"};
+        document.getElementById("emailOverlay").style.display="none";
+      };
+    } else {
+      window.currentUser={email,plan:"free"};
+      document.getElementById("emailOverlay").style.display="none";
+    }
+
+    // Dev Mode toggle
+    const isDev = devList.includes(email) || location.search.includes("dev=true");
+    if (isDev) document.getElementById("planSelector").style.display="block";
+
+    function getPlan(){ return isDev ? document.getElementById("userPlan").value : window.currentUser.plan; }
+
+    async function postData(url,body){
+      const h={"Content-Type":"application/json"};
+      h["X-User-Plan"]=getPlan();
+      h["X-User-Id"]=email;
+      const res=await fetch(url,{method:"POST",headers:h,body:JSON.stringify(body)});
       return res.json();
     }
 
-    // Hook Brain handler
-    document.getElementById('generateCaptions').onclick = async () => {
-      const niche  = document.getElementById('niche').value;
-      const tone   = document.getElementById('tone').value;
-      const goal   = document.getElementById('goal').value;
-      const topic  = document.getElementById('topic').value;
-      const data = await postData('https://creatorcore-api.vercel.app/api/hookbrain', { niche, tone, goal, topic });
-      document.getElementById('captionsOutput').textContent = data.captions?.join('\n\n') || data.error;
+    // HookBrain call
+    document.getElementById("generateCaptions").onclick=async()=>{
+      const niche=document.getElementById("niche").value,
+            tone=document.getElementById("tone").value,
+            goal=document.getElementById("goal").value,
+            topic=document.getElementById("topic").value,
+            postType=document.getElementById("postType").value;
+      const d=await postData("https://creatorcore-api.vercel.app/api/hookbrain",
+        {niche,tone,goal,topic,postType});
+      document.getElementById("captionsOutput").textContent=d.captions?.join("\n\n")||d.error;
+      document.getElementById("scriptOutput").textContent=d.script||d.error;
+      document.getElementById("ideaOutput").textContent=d.idea||d.error;
+      document.getElementById("seoOutput").textContent=(d.seo||[]).join(", ");
     };
 
-    // Course Forge handler
-    document.getElementById('generateCourse').onclick = async () => {
-      const topic     = document.getElementById('cfTopic').value;
-      const audience  = document.getElementById('cfAudience').value;
-      const format    = document.getElementById('cfFormat').value;
-      const level     = document.getElementById('cfLevel').value;
-      const data = await postData('https://creatorcore-api.vercel.app/api/courseforge', { topic, audience, format, level });
-      document.getElementById('courseOutput').textContent = data.course || data.error;
+    // CourseForge call
+    document.getElementById("generateCourse").onclick=async()=>{
+      const t=document.getElementById("cfTopic").value,
+            a=document.getElementById("cfAudience").value,
+            f=document.getElementById("cfFormat").value,
+            l=document.getElementById("cfLevel").value;
+      const d=await postData("https://creatorcore-api.vercel.app/api/courseforge",
+        {topic:t,audience:a,format:f,level:l});
+      document.getElementById("courseOutput").textContent=d.course||d.error;
     };
   </script>
 </body>
