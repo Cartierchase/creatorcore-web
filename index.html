@@ -62,7 +62,7 @@
       const tone   = document.getElementById('tone').value;
       const goal   = document.getElementById('goal').value;
       const topic  = document.getElementById('topic').value;
-      const data   = await postData('/api/hookbrain', { niche, tone, goal, topic });
+      const data = await postData('https://creatorcore-api.vercel.app/api/hookbrain', { niche, tone, goal, topic });
       document.getElementById('captionsOutput').textContent = data.captions?.join('\n\n') || data.error;
     };
 
@@ -72,7 +72,7 @@
       const audience  = document.getElementById('cfAudience').value;
       const format    = document.getElementById('cfFormat').value;
       const level     = document.getElementById('cfLevel').value;
-      const data      = await postData('/api/courseforge', { topic, audience, format, level });
+      const data = await postData('https://creatorcore-api.vercel.app/api/courseforge', { topic, audience, format, level });
       document.getElementById('courseOutput').textContent = data.course || data.error;
     };
   </script>
