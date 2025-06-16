@@ -96,39 +96,43 @@
     <button onclick="location='pricing.html'">Upgrade or View Plans</button>
   </div>
 
+  <!-- REPLACED SCRIPT BLOCK -->
   <script>
-    // Login & currentUser
-    const devList = (process.env.DEV_USER_IDS||"").split(",");
-    let email = localStorage.getItem("cc_user");
-    if (!email) {
-      // no overlay—Tally signup replaces manual capture
-      email = ""; window.currentUser={email,plan:"free"};
-    } else {
-      window.currentUser={email,plan:"free"};
+    // 1) Load stored user & plan from activation
+    const storedEmail = localStorage.getItem("cc_user") || "";
+    const storedPlan  = localStorage.getItem("cc_plan") || "free";
+    window.currentUser = { email: storedEmail, plan: storedPlan };
+
+    // 2) Dev-mode detection
+    const devList = (process.env.DEV_USER_IDS || "").split(",");
+    const isDev = devList.includes(storedEmail) || location.search.includes("dev=true");
+    if (isDev) {
+      document.getElementById("planSelector").style.display = "block";
+      document.getElementById("userPlan").value = storedPlan;
     }
 
-    // Dev Mode toggle
-    const isDev = devList.includes(email) || location.search.includes("dev=true");
-    if (isDev) document.getElementById("planSelector").style.display="block";
-
-    function getPlan(){
+    // 3) Plan helper
+    function getPlan() {
       return isDev
         ? document.getElementById("userPlan").value
         : window.currentUser.plan;
     }
 
-    async function postData(url,body){
-      const headers={"Content-Type":"application/json"};
-      headers["X-User-Plan"]=getPlan();
-      headers["X-User-Id"]=email;
-      const res = await fetch(url,{
-        method:"POST",headers,body:JSON.stringify(body)
+    // 4) postData helper
+    async function postData(url, body) {
+      const headers = { "Content-Type": "application/json" };
+      headers["X-User-Plan"] = getPlan();
+      headers["X-User-Id"]   = window.currentUser.email;
+      const res = await fetch(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(body)
       });
       return res.json();
     }
 
     // HookBrain call
-    document.getElementById("generateCaptions").onclick = async ()=>{
+    document.getElementById("generateCaptions").onclick = async () => {
       const niche    = document.getElementById("niche").value,
             tone     = document.getElementById("tone").value,
             goal     = document.getElementById("goal").value,
@@ -136,23 +140,23 @@
             postType = document.getElementById("postType").value;
       const d = await postData(
         "https://creatorcore-api.vercel.app/api/hookbrain",
-        {niche,tone,goal,topic,postType}
+        { niche, tone, goal, topic, postType }
       );
-      document.getElementById("captionsOutput").textContent = d.captions?.join("\n\n")||d.error;
-      document.getElementById("scriptOutput").textContent   = d.script || d.error;
-      document.getElementById("ideaOutput").textContent     = d.idea   || d.error;
-      document.getElementById("seoOutput").textContent      = (d.seo||[]).join(", ");
+      document.getElementById("captionsOutput").textContent = d.captions?.join("\n\n") || d.error;
+      document.getElementById("scriptOutput").textContent   = d.script                    || d.error;
+      document.getElementById("ideaOutput").textContent     = d.idea                      || d.error;
+      document.getElementById("seoOutput").textContent      = (d.seo || []).join(", ")    || d.error;
     };
 
     // CourseForge call
-    document.getElementById("generateCourse").onclick = async ()=>{
+    document.getElementById("generateCourse").onclick = async () => {
       const t = document.getElementById("cfTopic").value,
             a = document.getElementById("cfAudience").value,
             f = document.getElementById("cfFormat").value,
             l = document.getElementById("cfLevel").value;
       const d = await postData(
         "https://creatorcore-api.vercel.app/api/courseforge",
-        {topic:t,audience:a,format:f,level:l}
+        { topic: t, audience: a, format: f, level: l }
       );
       document.getElementById("courseOutput").textContent = d.course || d.error;
     };
