@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Activate Your CreatorCore AI Account</title>
+</head>
+<body>
+  <h1>Welcome to CreatorCore AI!</h1>
+  <p>Enter the email you used to purchase:</p>
+  <input id="email" placeholder="you@example.com"/>
+  <button id="login">Continue</button>
+
+  <script>
+    document.getElementById("login").onclick = async () => {
+      const email = document.getElementById("email").value.trim();
+      if (!email) return alert("Please enter your email.");
+      const res = await fetch("https://creatorcore-api.vercel.app/api/getPlan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+      });
+      const { plan } = await res.json();
+      if (!plan) return alert("No active plan found for this email.");
+      localStorage.setItem("cc_user", email);
+      localStorage.setItem("cc_plan", plan);
+      window.location = "index.html";
+    };
+  </script>
+</body>
+</html>
