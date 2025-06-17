@@ -3,61 +3,176 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Activate CreatorCore AI</title>
+  <title>CreatorCore AI Demo</title>
+  <!-- Tally Popup Embed -->
+  <script async src="https://tally.so/widgets/embed.js"></script>
   <style>
     body { font-family: sans-serif; padding: 2rem; background: #f9f9f9; }
-    .box { max-width: 400px; margin: auto; background: #fff; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-    input, button { display: block; width: 100%; padding: .75rem; margin: 1rem 0; border: 1px solid #ccc; border-radius: 4px; }
+    nav { text-align: center; margin-bottom: 1rem; }
+    img.logo { max-width: 200px; display: block; margin: 0 auto 1rem; }
+    .container {
+      max-width: 600px; margin: auto; background: #fff; padding: 2rem;
+      border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 2rem;
+    }
+    label { font-weight: bold; margin-top: 1rem; display: block; }
+    select, input, button, pre {
+      display: block; width: 100%; margin: .5rem 0; padding: .5rem;
+      border: 1px solid #ddd; border-radius: 4px;
+    }
     button { background: #0066ff; color: #fff; border: none; cursor: pointer; }
+    pre { background: #f0f0f0; white-space: pre-wrap; padding: 1rem; min-height: 4em; }
   </style>
 </head>
 <body>
-  <div class="box">
-    <h1>Welcome to CreatorCore AI!</h1>
-    <p>Enter the email you used to purchase:</p>
-    <input id="email" type="email" placeholder="you@example.com" />
-    <button id="login">Continue</button>
-    <p id="message" style="color:#c00; font-size:.9rem;"></p>
+
+  <!-- Logo & Banner -->
+  <img class="logo" src="logo.png" alt="CreatorCore AI Logo"/>
+  <img src="banner.png" alt="CreatorCore AI Banner"/>
+
+  <!-- Nav -->
+  <nav><a href="index.html">Demo</a> | <a href="pricing.html">Pricing</a></nav>
+
+  <!-- Dev Mode Plan Selector -->
+  <div id="planSelector" class="container" style="display:none;">
+    <label for="userPlan">DEV MODE: Override Plan</label>
+    <select id="userPlan">
+      <option value="free">Free</option>
+      <option value="creator">Creator</option>
+      <option value="pro">Pro</option>
+      <option value="lifetime">Lifetime</option>
+    </select>
+  </div>
+
+  <!-- HookBrain Module -->
+  <div class="container">
+    <h2>HookBrain</h2>
+
+    <label for="niche">Top Niches</label>
+    <select id="niche">
+      <option disabled selected>Choose a niche…</option>
+      <option>Fitness & Health</option><option>Beauty & Skincare</option><option>Travel & Adventure</option>
+      <option>Food & Cooking</option><option>Personal Finance</option><option>Tech & Gadgets</option>
+      <option>Lifestyle & Wellness</option><option>Parenting & Family</option><option>Fashion & Style</option>
+      <option>Gaming & Esports</option>
+    </select>
+
+    <label for="tone">Top Tones</label>
+    <select id="tone">
+      <option disabled selected>Choose a tone…</option>
+      <option>Inspirational</option><option>Motivational</option><option>Humorous</option>
+      <option>Authentic</option><option>Empathetic</option><option>Edgy</option>
+      <option>Educational</option><option>Conversational</option><option>Confident</option><option>Upbeat</option>
+    </select>
+
+    <label for="goal">Top Goals</label>
+    <select id="goal">
+      <option disabled selected>Choose a goal…</option>
+      <option>Increase Engagement</option><option>Gain Followers</option><option>Drive Clicks</option>
+      <option>Grow Brand Awareness</option><option>Generate Leads</option><option>Boost Sales</option>
+      <option>Build Community</option><option>Promote Event</option><option>Educate Audience</option>
+      <option>Gather Feedback</option>
+    </select>
+
+    <label for="topic">Your Custom Topic</label>
+    <input id="topic" type="text" placeholder="Enter your own topic…"/>
+
+    <label for="postType">Top Post Types</label>
+    <select id="postType">
+      <option disabled selected>Select post type…</option>
+      <option>Instagram Feed</option><option>Instagram Story</option><option>Instagram Reel</option>
+      <option>TikTok Video</option><option>YouTube Short</option><option>YouTube Long-Form</option>
+      <option>Facebook Post</option><option>LinkedIn Article</option><option>Twitter Thread</option>
+    </select>
+
+    <button id="generateCaptions">Generate HookBrain Content</button>
+    <pre id="hookbrainOutput">Your HookBrain output…</pre>
   </div>
 
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const emailInput = document.getElementById("email");
-      const loginBtn   = document.getElementById("login");
-      const msg        = document.getElementById("message");
+  document.addEventListener("DOMContentLoaded", () => {
+    // 1) Load stored user & plan
+    const email = localStorage.getItem("cc_user") || "";
+    const storedPlan = localStorage.getItem("cc_plan") || "free";
 
-      loginBtn.addEventListener("click", async () => {
-        const email = emailInput.value.trim();
-        if (!email) {
-          msg.textContent = "Please enter a valid email address.";
-          return;
-        }
+    // 2) Detect dev users
+    const DEV_IDS = (process.env.DEV_USER_IDS||"").split(",");
+    const isDev = DEV_IDS.includes(email) || location.search.includes("dev=true");
 
-        try {
-          const res = await fetch(
-            "https://creatorcore-api.vercel.app/api/getPlan",
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ email })
-            }
-          );
-          const { plan, error } = await res.json();
-          if (error || !plan) {
-            msg.textContent = "No active plan found for this email.";
-            return;
-          }
+    // 3) Show plan selector in dev mode
+    if (isDev) {
+      const planSel = document.getElementById("planSelector");
+      planSel.style.display = "block";
+      document.getElementById("userPlan").value = "lifetime";
+    }
 
-          // persist and redirect
-          localStorage.setItem("cc_user", email);
-          localStorage.setItem("cc_plan", plan);
-          window.location.href = "index.html";
-        } catch (e) {
-          console.error(e);
-          msg.textContent = "Network error—please try again.";
-        }
+    // 4) Determine effective plan
+    function getPlan() {
+      if (isDev) return document.getElementById("userPlan").value;
+      return storedPlan;
+    }
+
+    // 5) Pick model by plan
+    function pickModel() {
+      const plan = getPlan();
+      if (plan === "creator") return "gpt-4-0314";
+      if (plan === "pro" || plan === "lifetime") return "gpt-4-turbo";
+      return "gpt-3.5-turbo";
+    }
+
+    // 6) Rate limits for free/creator
+    function canCallHookBrain() {
+      const plan = getPlan();
+      if (plan !== "free") return true;
+      const today = new Date().toISOString().slice(0,10);
+      const key = `hb_count_${today}`;
+      let count = +localStorage.getItem(key) || 0;
+      if (count >= 3) return false;
+      localStorage.setItem(key, count+1);
+      return true;
+    }
+
+    // 7) POST helper
+    async function postData(url, body) {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type":"application/json",
+          "X-User-Id": email,
+          "X-User-Plan": getPlan()
+        },
+        body: JSON.stringify({ ...body, model: pickModel() })
       });
-    });
+      const text = await res.text();
+      if (!res.ok) throw new Error(text);
+      return JSON.parse(text);
+    }
+
+    // 8) HookBrain handler
+    document.getElementById("generateCaptions").onclick = async () => {
+      if (!canCallHookBrain()) {
+        return alert("Free users are limited to 3 HookBrain calls per day. Upgrade for unlimited access.");
+      }
+      const payload = {
+        niche: document.getElementById("niche").value,
+        tone: document.getElementById("tone").value,
+        goal: document.getElementById("goal").value,
+        topic: document.getElementById("topic").value,
+        postType: document.getElementById("postType").value
+      };
+      const out = document.getElementById("hookbrainOutput");
+      out.textContent = "Generating…";
+      try {
+        const d = await postData("https://creatorcore-api.vercel.app/api/hookbrain", payload);
+        out.textContent =
+          `**Captions:**\n${d.captions.join("\n\n")}\n\n— — —\n\n` +
+          `**Script:**\n${d.script}\n\n— — —\n\n` +
+          `**Idea:**\n${d.idea}\n\n— — —\n\n` +
+          `**SEO & Hashtags:**\n${d.seo.join(", ")}`;
+      } catch (e) {
+        out.textContent = "Error: " + e.message;
+      }
+    };
+  });
   </script>
 </body>
 </html>
