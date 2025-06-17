@@ -5,115 +5,89 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Welcome to CreatorCore AI</title>
   <style>
-    body {
-      font-family: sans-serif;
-      background: #f9f9f9;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-    }
-    .box {
-      background: #fff;
-      padding: 2rem;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      max-width: 360px;
-      width: 100%;
-    }
-    label {
-      display: block;
-      margin-bottom: .5rem;
-      font-weight: bold;
-    }
-    input, button {
-      width: 100%;
-      padding: .75rem;
-      margin-bottom: 1rem;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-size: 1rem;
-    }
-    button {
-      background: #0066ff;
-      color: #fff;
-      border: none;
-      cursor: pointer;
-    }
-    button:disabled {
-      background: #888;
-      cursor: not-allowed;
-    }
-    .error {
-      color: #c00;
-      margin-bottom: 1rem;
-    }
+    body { font-family: sans-serif; background: #f9f9f9; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+    .box { background: #fff; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 360px; width: 100%; }
+    label { display: block; margin-bottom: .5rem; font-weight: bold; }
+    input, button { width: 100%; padding: .75rem; margin-bottom: 1rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem; }
+    button { background: #0066ff; color: #fff; border: none; cursor: pointer; }
+    button:disabled { background: #888; cursor: not-allowed; }
+    .error { color: #c00; margin-bottom: 1rem; display: none; }
   </style>
 </head>
 <body>
   <div class="box">
     <h1>Activate Your Account</h1>
     <p>Enter the email you used to purchase:</p>
+
     <label for="email">Email Address</label>
     <input id="email" type="email" placeholder="you@example.com"/>
-    <div id="error" class="error" role="alert" style="display:none;"></div>
+
+    <div id="error" class="error"></div>
     <button id="login">Continue</button>
   </div>
 
   <script>
-    const apiUrl = "https://creatorcore-api.vercel.app/api/getPlan";
-    const emailInput = document.getElementById("email");
-    const loginBtn   = document.getElementById("login");
-    const errorDiv   = document.getElementById("error");
+    const apiUrl   = "https://creatorcore-api.vercel.app/api/getPlan";
+    const emailEl  = document.getElementById("email");
+    const btn      = document.getElementById("login");
+    const errorDiv = document.getElementById("error");
 
     async function fetchPlan(email) {
-      const res = await fetch(apiUrl, {
+      const resp = await fetch(apiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email })
       });
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text || res.status);
+      if (!resp.ok) {
+        const text = await resp.text();
+        console.error("getPlan error detail:", text);
+        throw new Error("We couldn't verify your plan right now. Please try again later.");
       }
-      const { plan } = await res.json();
-      return plan;
+      const data = await resp.json();
+      return data.plan;
     }
 
-    loginBtn.onclick = async () => {
+    btn.addEventListener("click", async () => {
       errorDiv.style.display = "none";
-      const email = emailInput.value.trim().toLowerCase();
+      const email = emailEl.value.trim().toLowerCase();
       if (!email) {
         errorDiv.textContent = "Please enter your email.";
         errorDiv.style.display = "block";
         return;
       }
-      loginBtn.disabled = true;
-      loginBtn.textContent = "Verifying…";
+
+      btn.disabled     = true;
+      btn.textContent  = "Verifying…";
+
       try {
         const plan = await fetchPlan(email);
         if (!plan || plan === "free") {
-          errorDiv.textContent = "No active plan found for this email.";
+          errorDiv.textContent = "No active paid plan found for this email.";
           errorDiv.style.display = "block";
-          loginBtn.disabled = false;
-          loginBtn.textContent = "Continue";
+          btn.disabled    = false;
+          btn.textContent = "Continue";
           return;
         }
+
         localStorage.setItem("cc_user", email);
         localStorage.setItem("cc_plan", plan);
-        // preserve dev override
+
+        // if you want dev override via query
         if (location.search.includes("dev=true")) {
           localStorage.setItem("cc_plan", "lifetime");
         }
+
         window.location.href = "index.html";
+
       } catch (err) {
-        errorDiv.textContent = err.message || "An error occurred. Please try again.";
+        // user-friendly
+        errorDiv.textContent = err.message;
         errorDiv.style.display = "block";
-        loginBtn.disabled = false;
-        loginBtn.textContent = "Continue";
+        console.error("Welcome page error:", err);
+        btn.disabled     = false;
+        btn.textContent  = "Continue";
       }
-    };
+    });
   </script>
 </body>
 </html>
