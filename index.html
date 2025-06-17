@@ -6,21 +6,20 @@
   <!-- Tally Popup Embed -->
   <script async src="https://tally.so/widgets/embed.js"></script>
   <style>
-    body { font-family: sans-serif; padding: 2rem; background: #f9f9f9; }
-    nav { text-align: center; margin-bottom: 1rem; }
-    img.logo { max-width: 200px; display: block; margin: 0 auto 1rem; }
+    body { font-family:sans-serif; padding:2rem; background:#f9f9f9 }
+    nav { text-align:center; margin-bottom:1rem }
+    img.logo { max-width:200px; display:block; margin:0 auto 1rem }
     .container {
-      max-width: 600px; margin: auto; background: #fff; padding: 2rem;
-      border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      margin-bottom: 2rem;
+      max-width:600px; margin:auto; background:#fff; padding:2rem;
+      border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.1); margin-bottom:2rem
     }
-    label { font-weight: bold; margin-top: 1rem; display: block; }
-    select, input, button, pre {
-      display: block; width: 100%; margin: .5rem 0; padding: .5rem;
-      border: 1px solid #ddd; border-radius: 4px;
+    label { font-weight:bold; margin-top:1rem; display:block }
+    select,input,button,pre {
+      display:block; width:100%; margin:.5rem 0; padding:.5rem;
+      border:1px solid #ddd; border-radius:4px
     }
-    button { background: #0066ff; color: #fff; border: none; cursor: pointer; }
-    pre { background: #f0f0f0; white-space: pre-wrap; padding: 1rem; min-height: 4em; }
+    button { background:#0066ff; color:#fff; border:none; cursor:pointer }
+    pre { background:#f0f0f0; white-space:pre-wrap; padding:1rem; min-height:4em }
   </style>
 </head>
 <body>
@@ -46,7 +45,6 @@
   <!-- HookBrain Module -->
   <div class="container">
     <h2>HookBrain</h2>
-
     <label for="niche">Top Niches</label>
     <select id="niche">
       <option disabled selected>Choose a niche…</option>
@@ -116,7 +114,6 @@
   <!-- CourseForge Module -->
   <div class="container">
     <h2>CourseForge (Life Coaching / Mastercourse)</h2>
-
     <label for="cfTopic">Top Mastercourse Topics</label>
     <select id="cfTopic">
       <option disabled selected>Select a topic…</option>
@@ -175,12 +172,10 @@
 
   <script>
   document.addEventListener("DOMContentLoaded", () => {
-    // load user & plan
     const email = localStorage.getItem("cc_user") || "";
     const plan  = localStorage.getItem("cc_plan") || "free";
     window.currentUser = { email, plan };
 
-    // dev-mode toggle
     const DEV_IDS = ["dev@yourdomain.com"];
     const isDev = DEV_IDS.includes(email) || location.search.includes("dev=true");
     if (isDev) {
@@ -188,25 +183,26 @@
       document.getElementById("userPlan").value = plan;
     }
 
-    function getPlan(){
+    function getPlan() {
       return isDev ? document.getElementById("userPlan").value : plan;
     }
 
-    async function postData(url, body){
+    async function postData(url, body) {
       const res = await fetch(url, {
         method: "POST",
         headers: {
-          "Content-Type":"application/json",
-          "X-User-Plan": getPlan(),
-          "X-User-Id":   email
+          "Content-Type": "application/json",
+          "X-User-Plan":  getPlan(),
+          "X-User-Id":    email
         },
         body: JSON.stringify(body)
       });
       const text = await res.text();
-      if (!res.ok){
+      if (!res.ok) {
         let msg;
-        try{ msg = JSON.parse(text).error; } catch { msg = text; }
-        throw new Error(msg||res.status);
+        try { msg = JSON.parse(text).error; }
+        catch { msg = text; }
+        throw new Error(msg || res.status);
       }
       return JSON.parse(text);
     }
@@ -234,56 +230,81 @@
       }
     };
 
-    // DEBUGGING CourseForge handler
+    // Updated CourseForge handler with wrapper-unwrapping
     document.getElementById("generateCourse").onclick = async () => {
-      console.log("🔄 CourseForge clicked");
       const payload = {
         topic:    document.getElementById("cfTopic").value,
         audience: document.getElementById("cfAudience").value,
         format:   document.getElementById("cfFormat").value,
         level:    document.getElementById("cfLevel").value
       };
-      console.log("📤 Payload:", payload);
-
       const out = document.getElementById("courseOutput");
-      out.textContent = "Loading…";
+      out.textContent = "Generating…";
 
       try {
-        const res = await fetch("https://creatorcore-api.vercel.app/api/courseforge", {
-          method: "POST",
-          headers: {
-            "Content-Type":"application/json",
-            "X-User-Plan": getPlan(),
-            "X-User-Id":   email
-          },
-          body: JSON.stringify(payload)
-        });
-        console.log("📥 Status:", res.status);
-        const text = await res.text();
-        console.log("📝 Raw text:", text);
+        let { courseMarkdown } = await postData(
+          "https://creatorcore-api.vercel.app/api/courseforge",
+          payload
+        );
 
-        if (!res.ok) throw new Error(`HTTP ${res.status}: ${text}`);
-
-        // show raw
-        out.textContent = text;
-
-        const json = JSON.parse(text);
-        console.log("✅ JSON:", json);
-
-        let md = json.courseMarkdown;
-        if (typeof md==="string" && md.trim().startsWith("{")) {
-          const inner = JSON.parse(md);
-          md = inner.courseMarkdown;
-          console.log("🔓 Unwrapped:", md);
+        // unwrap nested JSON string
+        let md = courseMarkdown.trim();
+        if (md.startsWith("{")) {
+          md = md
+            .replace(/^\{\s*"courseMarkdown"\s*:\s*"/, "")
+            .replace(/"\s*\}$/, "")
+            .replace(/\\n/g, "\n")
+            .replace(/\\"/g, '"');
         }
 
-        out.textContent = md;
-      } catch (err) {
-        console.error("❌ Error:", err);
-        out.textContent = "Error: " + err.message;
+        // parse & render
+        const lines = md.split("\n");
+        const sections = [];
+        let label = "", buffer = [];
+
+        function flush() {
+          if (!label) return;
+          const isList = buffer.some(l => l.startsWith("- "));
+          const body = isList
+            ? `<ul>${ buffer.map(l => `<li>${l.slice(2)}</li>`).join("") }</ul>`
+            : buffer.map(l => `<p>${l}</p>`).join("");
+          sections.push(`<div><strong>${label}</strong>${body}</div>`);
+          buffer = [];
+        }
+
+        lines.forEach(l => {
+          if (l.startsWith("## **Course Title:")) {
+            flush(); label = "Course Title:"; buffer.push(l.replace(/## \*\*Course Title:\*\*\s*/, ""));
+          }
+          else if (l.startsWith("### **Subtitle:")) {
+            flush(); label = "Subtitle:"; buffer.push(l.replace(/### \*\*Subtitle:\*\*\s*/, ""));
+          }
+          else if (l.startsWith("## Sales Page Blurb")) {
+            flush(); label = "Sales Page Blurb:";
+          }
+          else if (l.startsWith("## Modules & Lessons")) {
+            flush(); label = "Modules & Lessons:";
+          }
+          else if (l.startsWith("## Workbook Exercises per Lesson")) {
+            flush(); label = "Workbook Exercises per Lesson:";
+          }
+          else if (l.startsWith("## Downloadable Resources List")) {
+            flush(); label = "Downloadable Resources List:";
+          }
+          else if (l.startsWith("## CTA & Next Steps")) {
+            flush(); label = "CTA & Next Steps:";
+          }
+          else {
+            if (l.trim()) buffer.push(l.trim());
+          }
+        });
+        flush();
+
+        out.innerHTML = sections.join("<hr/>");
+      } catch (e) {
+        out.textContent = "Error: " + e.message;
       }
     };
-
   });
   </script>
 </body>
