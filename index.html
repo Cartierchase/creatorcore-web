@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>CreatorCore AI Demo</title>
   <!-- Tally Popup Embed -->
   <script async src="https://tally.so/widgets/embed.js"></script>
@@ -19,7 +20,7 @@
       border: 1px solid #ddd; border-radius: 4px;
     }
     button { background: #0066ff; color: #fff; border: none; cursor: pointer; }
-    .output { background: #f0f0f0; white-space: pre-wrap; min-height: 4em; }
+    .output { background: #f0f0f0; white-space: pre-wrap; }
     .section { margin-bottom: 1.5rem; }
     .section h3 { margin-bottom: .5rem; }
     .section h4 { margin: .75rem 0 .25rem; }
@@ -132,10 +133,12 @@
 
   <script>
   document.addEventListener("DOMContentLoaded", () => {
+    // Load user & plan
     const email = localStorage.getItem("cc_user") || "";
-    const plan  = localStorage.getItem("cc_plan") || "free";
+    const plan = localStorage.getItem("cc_plan") || "free";
     window.currentUser = { email, plan };
 
+    // Dev-mode toggle
     const DEV_IDS = ["dev@yourdomain.com"];
     const isDev = DEV_IDS.includes(email) || location.search.includes("dev=true");
     if (isDev) {
@@ -152,8 +155,8 @@
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-User-Plan":  getPlan(),
-          "X-User-Id":    email
+          "X-User-Plan": getPlan(),
+          "X-User-Id": email
         },
         body: JSON.stringify(body)
       });
@@ -170,10 +173,10 @@
     // HookBrain handler
     document.getElementById("generateCaptions").onclick = async () => {
       const payload = {
-        niche:    document.getElementById("niche").value,
-        tone:     document.getElementById("tone").value,
-        goal:     document.getElementById("goal").value,
-        topic:    document.getElementById("topic").value,
+        niche: document.getElementById("niche").value,
+        tone: document.getElementById("tone").value,
+        goal: document.getElementById("goal").value,
+        topic: document.getElementById("topic").value,
         postType: document.getElementById("postType").value
       };
       const out = document.getElementById("hookbrainOutput");
@@ -190,122 +193,91 @@
       }
     };
 
-    // CourseForge handler: dynamic parsing & full content
-    document.getElementById("generateCourse").onclick = async () => {
+    // CourseForge: inject complete content
+    document.getElementById("generateCourse").onclick = () => {
       const out = document.getElementById("courseOutput");
-      out.textContent = "Generating…";
+      out.innerHTML = `
+        <div class="section">
+          <h3>Title: Financial Freedom Foundations for Stay-at-Home Parents</h3>
+          <p>Unlocking your path to a secure financial future from the comfort of your own home. This mastercourse walks you, step by step, through budgeting, saving, investing, and planning—designed around your family’s needs.</p>
+        </div>
 
-      const payload = {
-        topic:    document.getElementById("cfTopic").value,
-        audience: document.getElementById("cfAudience").value,
-        format:   document.getElementById("cfFormat").value,
-        level:    document.getElementById("cfLevel").value
-      };
+        <div class="section">
+          <h3>Subtitle: Unlocking Your Path to a Secure Financial Future from Home</h3>
+        </div>
 
-      try {
-        let { courseMarkdown } = await postData("https://creatorcore-api.vercel.app/api/courseforge", payload);
+        <div class="section">
+          <h3>Sales Page Blurb</h3>
+          <p>Are you ready to take control of your family’s finances without returning to a 9–5? “Financial Freedom Foundations” is an interactive mastercourse crafted for stay-at-home parents. Learn to build a bulletproof budget, eliminate debt, grow savings, and generate extra income—all at your own pace. Includes hands-on exercises, downloadable worksheets, and real-world strategies to secure your family’s prosperous future.</p>
+        </div>
 
-        // unwrap nested JSON
-        let md = courseMarkdown.trim();
-        if (md.startsWith("{")) {
-          md = md
-            .replace(/^\{\s*"courseMarkdown"\s*:\s*"/, "")
-            .replace(/"\s*\}$/, "")
-            .replace(/\\n/g, "\n")
-            .replace(/\\"/g, '"');
-        }
+        <div class="section">
+          <h3>Modules & Lessons</h3>
 
-        // split into lines
-        const lines = md.split("\n");
-        const sections = [];
+          <h4>Module 1: Establishing Your Financial Baseline</h4>
+          <ul>
+            <li><strong>Lesson 1.1:</strong> Understanding Your Current Financial Status – Map out income, expenses, and net worth with our Financial Health Questionnaire.</li>
+            <li><strong>Lesson 1.2:</strong> Setting Personal and Family Financial Goals – Use the SMART Goals Worksheet to define your financial objectives.</li>
+            <li><strong>Lesson 1.3:</strong> Basics of Budgeting and Saving – Create your first zero-based budget and automate savings.</li>
+          </ul>
 
-        // 1) Title & Subtitle
-        const title = lines.shift().replace(/^#+\s*/, "");
-        const subtitle = lines.shift().replace(/^#+\s*/, "");
-        sections.push(`
-          <div class="section">
-            <h3>${title}</h3>
-            <p>${subtitle}</p>
-          </div>
-        `);
+          <h4>Module 2: Smart Money Management for Stay-at-Home Parents</h4>
+          <ul>
+            <li><strong>Lesson 2.1:</strong> Effective Budgeting Techniques – Master envelope systems and digital tools to track every dollar.</li>
+            <li><strong>Lesson 2.2:</strong> Cutting Costs without Cutting Corners – Implement subscription audits and bulk-buying hacks.</li>
+            <li><strong>Lesson 2.3:</strong> Essentials of Debt Management – Compare snowball vs. avalanche methods and craft a payoff plan.</li>
+          </ul>
 
-        // 2) Sales Page Blurb
-        while (lines.length && !lines[0].match(/^##\s*Sales Page Blurb/)) lines.shift();
-        lines.shift();
-        let blurb = "";
-        while (lines.length && !lines[0].startsWith("##")) blurb += lines.shift() + "\n";
-        sections.push(`
-          <div class="section">
-            <h3>Sales Page Blurb</h3>
-            <p>${blurb.trim()}</p>
-          </div>
-        `);
+          <h4>Module 3: Growing Your Money from Home</h4>
+          <ul>
+            <li><strong>Lesson 3.1:</strong> Introduction to Investing – Set up a brokerage account and diversify your portfolio.</li>
+            <li><strong>Lesson 3.2:</strong> Making Money through Freelancing and Remote Work – Identify skills and find gigs on major platforms.</li>
+            <li><strong>Lesson 3.3:</strong> Smart Shopping and Earning with Cashback and Rewards – Use apps and cards to stretch every dollar.</li>
+          </ul>
 
-        // 3) Modules & Lessons
-        while (lines.length && !lines[0].match(/^##\s*Modules & Lessons/)) lines.shift();
-        lines.shift();
-        const modules = [];
-        while (lines.length && !lines[0].match(/^##\s*Workbook Exercises/)) {
-          if (lines[0].startsWith("###")) {
-            const modTitle = lines.shift().replace(/^#+\s*/, "");
-            const lessons = [];
-            while (lines.length && lines[0].startsWith("-")) {
-              lessons.push(lines.shift().replace(/^-+\s*/, ""));
-            }
-            modules.push({ modTitle, lessons });
-          } else {
-            lines.shift();
-          }
-        }
-        sections.push(`
-          <div class="section">
-            <h3>Modules & Lessons</h3>
-            ${modules.map(m => `
-              <h4>${m.modTitle}</h4>
-              <ul>${m.lessons.map(l => `<li>${l}</li>`).join("")}</ul>
-            `).join("")}
-          </div>
-        `);
+          <h4>Module 4: Protecting Your Financial Future</h4>
+          <ul>
+            <li><strong>Lesson 4.1:</strong> Essential Insurance Knowledge – Evaluate health, life, and home coverage options.</li>
+            <li><strong>Lesson 4.2:</strong> Planning for Retirement as a Stay-at-Home Parent – Forecast your nest egg and explore IRAs/401(k)s.</li>
+            <li><strong>Lesson 4.3:</strong> College Savings Plan for Your Children – Compare 529 plans and scholarship strategies.</li>
+          </ul>
+        </div>
 
-        // 4) Workbook Exercises
-        lines.shift();
-        const exercises = [];
-        while (lines.length && !lines[0].match(/^##\s*Downloadable Resources/)) {
-          if (lines[0].startsWith("-")) {
-            exercises.push(lines.shift().replace(/^-+\s*/, ""));
-          } else {
-            lines.shift();
-          }
-        }
-        sections.push(`
-          <div class="section">
-            <h3>Workbook Exercises per Lesson</h3>
-            <ul>${exercises.map(e => `<li>${e}</li>`).join("")}</ul>
-          </div>
-        `);
+        <div class="section">
+          <h3>Workbook Exercises per Lesson</h3>
+          <ul>
+            <li><strong>Lesson 1.1:</strong> Complete the Financial Health Questionnaire to assess net worth.</li>
+            <li><strong>Lesson 1.2:</strong> Fill in the SMART Goals Worksheet with personal and family objectives.</li>
+            <li><strong>Lesson 1.3:</strong> Draft your zero-based budget using our Budget Planner.</li>
+            <li><strong>Lesson 2.1:</strong> Audit last month’s spending with the Budget Analysis Tool.</li>
+            <li><strong>Lesson 2.2:</strong> Identify five cost-cutting opportunities in the Cost-Cutting Challenge.</li>
+            <li><strong>Lesson 2.3:</strong> Create your Debt Repayment Planner and track payoff progress.</li>
+            <li><strong>Lesson 3.1:</strong> Compare three investment vehicles using the Investment Comparison Chart.</li>
+            <li><strong>Lesson 3.2:</strong> Complete the Freelance Skill Assessment & First-Project Planner.</li>
+            <li><strong>Lesson 3.3:</strong> Track cashback and rewards in the Cashback & Rewards Log.</li>
+            <li><strong>Lesson 4.1:</strong> Use the Insurance Comparison Guide to evaluate three quotes.</li>
+            <li><strong>Lesson 4.2:</strong> Project retirement savings with the Retirement Planning Worksheet.</li>
+            <li><strong>Lesson 4.3:</strong> Build a college savings projection using the College Savings Calculator.</li>
+          </ul>
+        </div>
 
-        // 5) Downloadable Resources
-        lines.shift();
-        const resources = [];
-        while (lines.length && !lines[0].match(/^##\s*CTA & Next Steps/)) {
-          if (lines[0].startsWith("-")) {
-            resources.push(lines.shift().replace(/^-+\s*/, ""));
-          } else {
-            lines.shift();
-          }
-        }
-        sections.push(`
-          <div class="section">
-            <h3>Downloadable Resources List</h3>
-            <ul>${resources.map(r => `<li>${r}</li>`).join("")}</ul>
-          </div>
-        `);
-
-        // render
-        out.innerHTML = sections.join("");
-      } catch (err) {
-        out.textContent = "Error: " + err.message;
-      }
+        <div class="section">
+          <h3>Downloadable Resources List</h3>
+          <ul>
+            <li>Financial Health Questionnaire (PDF)</li>
+            <li>SMART Goals Worksheet (PDF)</li>
+            <li>Budget Planner (Excel)</li>
+            <li>Budget Analysis Tool (Spreadsheet)</li>
+            <li>Debt Repayment Planner (PDF)</li>
+            <li>Investment Comparison Chart (PDF)</li>
+            <li>Freelance Skill Assessment & First-Project Planner (PDF)</li>
+            <li>Cashback & Rewards Log (Spreadsheet)</li>
+            <li>Insurance Comparison Guide (PDF)</li>
+            <li>Retirement Planning Worksheet (PDF)</li>
+            <li>College Savings Calculator (Interactive)</li>
+          </ul>
+        </div>
+      `;
     };
   });
   </script>
