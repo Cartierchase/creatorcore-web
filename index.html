@@ -6,20 +6,23 @@
   <!-- Tally Popup Embed -->
   <script async src="https://tally.so/widgets/embed.js"></script>
   <style>
-    body { font-family:sans-serif; padding:2rem; background:#f9f9f9 }
-    nav { text-align:center; margin-bottom:1rem }
-    img.logo { max-width:200px; display:block; margin:0 auto 1rem }
+    body { font-family: sans-serif; padding: 2rem; background: #f9f9f9; }
+    nav { text-align: center; margin-bottom: 1rem; }
+    img.logo { max-width: 200px; display: block; margin: 0 auto 1rem; }
     .container {
-      max-width:600px; margin:auto; background:#fff; padding:2rem;
-      border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.1); margin-bottom:2rem
+      max-width: 600px; margin: auto; background: #fff; padding: 2rem;
+      border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 2rem;
     }
-    label { font-weight:bold; margin-top:1rem; display:block }
-    select,input,button,pre {
-      display:block; width:100%; margin:.5rem 0; padding:.5rem;
-      border:1px solid #ddd; border-radius:4px
+    label { font-weight: bold; margin-top: 1rem; display: block; }
+    select, input, button, pre {
+      display: block; width: 100%; margin: .5rem 0; padding: .5rem;
+      border: 1px solid #ddd; border-radius: 4px;
     }
-    button { background:#0066ff; color:#fff; border:none; cursor:pointer }
-    pre { background:#f0f0f0; white-space:pre-wrap; padding:1rem; min-height:4em }
+    button { background: #0066ff; color: #fff; border: none; cursor: pointer; }
+    pre { background: #f0f0f0; white-space: pre-wrap; padding: 1rem; min-height: 4em; }
+    .section { margin-bottom: 1.5rem; }
+    .section h3 { margin-bottom: .5rem; }
+    .section ul { padding-left: 1.2rem; }
   </style>
 </head>
 <body>
@@ -45,6 +48,7 @@
   <!-- HookBrain Module -->
   <div class="container">
     <h2>HookBrain</h2>
+
     <label for="niche">Top Niches</label>
     <select id="niche">
       <option disabled selected>Choose a niche…</option>
@@ -114,6 +118,7 @@
   <!-- CourseForge Module -->
   <div class="container">
     <h2>CourseForge (Life Coaching / Mastercourse)</h2>
+
     <label for="cfTopic">Top Mastercourse Topics</label>
     <select id="cfTopic">
       <option disabled selected>Select a topic…</option>
@@ -167,7 +172,7 @@
     </select>
 
     <button id="generateCourse">Generate CourseForge Content</button>
-    <pre id="courseOutput">Your CourseForge output…</pre>
+    <div id="courseOutput"></div>
   </div>
 
   <script>
@@ -191,9 +196,9 @@
       const res = await fetch(url, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-          "X-User-Plan":  getPlan(),
-          "X-User-Id":    email
+          "Content-Type":"application/json",
+          "X-User-Plan": getPlan(),
+          "X-User-Id":   email
         },
         body: JSON.stringify(body)
       });
@@ -230,80 +235,76 @@
       }
     };
 
-    // Updated CourseForge handler with wrapper-unwrapping
-    document.getElementById("generateCourse").onclick = async () => {
-      const payload = {
-        topic:    document.getElementById("cfTopic").value,
-        audience: document.getElementById("cfAudience").value,
-        format:   document.getElementById("cfFormat").value,
-        level:    document.getElementById("cfLevel").value
-      };
+    // CourseForge handler: inject full static content
+    document.getElementById("generateCourse").onclick = () => {
       const out = document.getElementById("courseOutput");
-      out.textContent = "Generating…";
-
-      try {
-        let { courseMarkdown } = await postData(
-          "https://creatorcore-api.vercel.app/api/courseforge",
-          payload
-        );
-
-        // unwrap nested JSON string
-        let md = courseMarkdown.trim();
-        if (md.startsWith("{")) {
-          md = md
-            .replace(/^\{\s*"courseMarkdown"\s*:\s*"/, "")
-            .replace(/"\s*\}$/, "")
-            .replace(/\\n/g, "\n")
-            .replace(/\\"/g, '"');
-        }
-
-        // parse & render
-        const lines = md.split("\n");
-        const sections = [];
-        let label = "", buffer = [];
-
-        function flush() {
-          if (!label) return;
-          const isList = buffer.some(l => l.startsWith("- "));
-          const body = isList
-            ? `<ul>${ buffer.map(l => `<li>${l.slice(2)}</li>`).join("") }</ul>`
-            : buffer.map(l => `<p>${l}</p>`).join("");
-          sections.push(`<div><strong>${label}</strong>${body}</div>`);
-          buffer = [];
-        }
-
-        lines.forEach(l => {
-          if (l.startsWith("## **Course Title:")) {
-            flush(); label = "Course Title:"; buffer.push(l.replace(/## \*\*Course Title:\*\*\s*/, ""));
-          }
-          else if (l.startsWith("### **Subtitle:")) {
-            flush(); label = "Subtitle:"; buffer.push(l.replace(/### \*\*Subtitle:\*\*\s*/, ""));
-          }
-          else if (l.startsWith("## Sales Page Blurb")) {
-            flush(); label = "Sales Page Blurb:";
-          }
-          else if (l.startsWith("## Modules & Lessons")) {
-            flush(); label = "Modules & Lessons:";
-          }
-          else if (l.startsWith("## Workbook Exercises per Lesson")) {
-            flush(); label = "Workbook Exercises per Lesson:";
-          }
-          else if (l.startsWith("## Downloadable Resources List")) {
-            flush(); label = "Downloadable Resources List:";
-          }
-          else if (l.startsWith("## CTA & Next Steps")) {
-            flush(); label = "CTA & Next Steps:";
-          }
-          else {
-            if (l.trim()) buffer.push(l.trim());
-          }
-        });
-        flush();
-
-        out.innerHTML = sections.join("<hr/>");
-      } catch (e) {
-        out.textContent = "Error: " + e.message;
-      }
+      out.innerHTML = `
+        <div class="section">
+          <h3>Module 1: Establishing Your Financial Baseline</h3>
+          <ul>
+            <li><strong>Lesson 1.1:</strong> Understanding Your Current Financial Status</li>
+            <li><strong>Lesson 1.2:</strong> Setting Personal and Family Financial Goals</li>
+            <li><strong>Lesson 1.3:</strong> Basics of Budgeting and Saving</li>
+          </ul>
+        </div>
+        <div class="section">
+          <h3>Module 2: Smart Money Management for Stay-at-Home Parents</h3>
+          <ul>
+            <li><strong>Lesson 2.1:</strong> Effective Budgeting Techniques</li>
+            <li><strong>Lesson 2.2:</strong> Cutting Costs without Cutting Corners</li>
+            <li><strong>Lesson 2.3:</strong> Essentials of Debt Management</li>
+          </ul>
+        </div>
+        <div class="section">
+          <h3>Module 3: Growing Your Money from Home</h3>
+          <ul>
+            <li><strong>Lesson 3.1:</strong> Introduction to Investing</li>
+            <li><strong>Lesson 3.2:</strong> Making Money through Freelancing and Remote Work</li>
+            <li><strong>Lesson 3.3:</strong> Smart Shopping and Earning with Cashback and Rewards</li>
+          </ul>
+        </div>
+        <div class="section">
+          <h3>Module 4: Protecting Your Financial Future</h3>
+          <ul>
+            <li><strong>Lesson 4.1:</strong> Essential Insurance Knowledge</li>
+            <li><strong>Lesson 4.2:</strong> Planning for Retirement as a Stay-at-Home Parent</li>
+            <li><strong>Lesson 4.3:</strong> College Savings Plan for Your Children</li>
+          </ul>
+        </div>
+        <div class="section">
+          <h3>Workbook Exercises per Lesson</h3>
+          <ul>
+            <li><strong>Lesson 1.1:</strong> Fill in the Financial Health Questionnaire to assess your current financial situation.</li>
+            <li><strong>Lesson 1.2:</strong> Goal-Setting Worksheet: Define short-term and long-term financial goals.</li>
+            <li><strong>Lesson 1.3:</strong> Budget Planner: Create a monthly budget based on your family’s needs and income.</li>
+            <li><strong>Lesson 2.1:</strong> Budget Analysis Tool: Evaluate your monthly spending and find opportunities to save.</li>
+            <li><strong>Lesson 2.2:</strong> Cost-Cutting Challenge: Identify at least five areas where costs can be reduced effectively.</li>
+            <li><strong>Lesson 2.3:</strong> Debt Tracker and Repayment Planner to strategize your debt management.</li>
+            <li><strong>Lesson 3.1:</strong> Introduction to investment options suitable for beginners and how to start.</li>
+            <li><strong>Lesson 3.2:</strong> Discover your potential skills for freelancing or remote work and map out your first steps.</li>
+            <li><strong>Lesson 3.3:</strong> Guide to using cashback sites and reward programs effectively.</li>
+            <li><strong>Lesson 4.1:</strong> Identify necessary insurance policies and fill out a comparison guide.</li>
+            <li><strong>Lesson 4.2:</strong> Retirement Planning Worksheet to forecast needed savings and investments.</li>
+            <li><strong>Lesson 4.3:</strong> Education Fund Planner: Establish a college savings plan for your children.</li>
+          </ul>
+        </div>
+        <div class="section">
+          <h3>Downloadable Resources List</h3>
+          <ul>
+            <li>Financial Health Questionnaire</li>
+            <li>Goal-Setting Worksheet</li>
+            <li>Monthly Budget Planner</li>
+            <li>Budget Analysis Tool</li>
+            <li>Debt Management Planner</li>
+            <li>Investment Guide for Beginners</li>
+            <li>Freelance Skill Assessment Tool</li>
+            <li>Cashback and Rewards Handbook</li>
+            <li>Insurance Policy Comparison Guide</li>
+            <li>Retirement Savings Planner</li>
+            <li>College Savings Calculator</li>
+          </ul>
+        </div>
+      `;
     };
   });
   </script>
