@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>CreatorCore AI Demo</title>
+  <!-- Tally Popup Embed -->
   <script async src="https://tally.so/widgets/embed.js"></script>
   <style>
     body { font-family:sans-serif; padding:2rem; background:#f9f9f9 }
@@ -32,7 +33,7 @@
   <!-- Nav -->
   <nav><a href="index.html">Demo</a> | <a href="pricing.html">Pricing</a></nav>
 
-  <!-- Dev Mode -->
+  <!-- Dev Mode Plan Selector -->
   <div id="planSelector" class="container">
     <label>Your Plan (Dev Mode)</label>
     <select id="userPlan">
@@ -138,15 +139,21 @@
       document.getElementById("planSelector").style.display="block";
       document.getElementById("userPlan").value=plan;
     }
-    function getPlan(){
-      return isDev?document.getElementById("userPlan").value:plan;
-    }
+    function getPlan(){ return isDev?document.getElementById("userPlan").value:plan; }
+
     async function postData(url,body){
-      const h={"Content-Type":"application/json","X-User-Plan":getPlan(),"X-User-Id":email},
-            res=await fetch(url,{method:"POST",headers:h,body:JSON.stringify(body)}),
-            t=await res.text();
-      if(!res.ok){let m;try{m=JSON.parse(t).error}catch{m=t}throw new Error(m||res.status)}
-      return JSON.parse(t);
+      console.log("postData:",url,body);
+      const headers={
+        "Content-Type":"application/json",
+        "X-User-Plan":getPlan(),
+        "X-User-Id":email
+      };
+      const res=await fetch(url,{method:"POST",headers,body:JSON.stringify(body)});
+      console.log("Response status:",res.status);
+      const text=await res.text();
+      console.log("Raw response:",text);
+      if(!res.ok){let m;try{m=JSON.parse(text).error}catch{m=text}throw new Error(m||res.status)}
+      return JSON.parse(text);
     }
 
     // HookBrain
@@ -157,7 +164,7 @@
         goal:document.getElementById("goal").value,
         topic:document.getElementById("topic").value,
         postType:document.getElementById("postType").value
-      },out=document.getElementById("hookbrainOutput");
+      }, out=document.getElementById("hookbrainOutput");
       out.textContent="Generating…";
       try{
         const d=await postData("https://creatorcore-api.vercel.app/api/hookbrain",p);
@@ -166,38 +173,27 @@
           `**Script:**\n${d.script}\n\n— — —\n\n`+
           `**Idea:**\n${d.idea}\n\n— — —\n\n`+
           `**SEO & Hashtags:**\n${d.seo.join(", ")}`;
-      }catch(e){out.textContent="Error: "+e.message}
+      }catch(e){console.error(e); out.textContent="Error: "+e.message}
     };
 
-    // CourseForge
+    // CourseForge with logging
     document.getElementById("generateCourse").onclick=async()=>{
-      const p={
+      const payload={
         topic:document.getElementById("cfTopic").value,
         audience:document.getElementById("cfAudience").value,
         format:document.getElementById("cfFormat").value,
         level:document.getElementById("cfLevel").value
-      },out=document.getElementById("courseOutput");
-      out.textContent="Generating…";
+      }, out=document.getElementById("courseOutput");
+      console.log("GenerateCourse payload:",payload);
+      out.textContent="Loading…";
       try{
-        const { courseMarkdown }=await postData("https://creatorcore-api.vercel.app/api/courseforge",p),
-              lines=courseMarkdown.trim().split("\n"),
-              sections=[],cur={title:"",body:[]};
-        lines.forEach(l=>{
-          if(l.startsWith("## ")){
-            if(cur.title)sections.push(cur);
-            cur={title:l.replace(/^##+\s*/,""),body:[]};
-          } else if(l.startsWith("### ")){
-            if(cur.body.length&&!cur.body.at(-1).endsWith(":"))cur.body.push("");
-            cur.body.push("**"+l.replace(/^###\s*/,"")+":**");
-          } else cur.body.push(l);
-        });
-        if(cur.title)sections.push(cur);
-        out.innerHTML=sections.map(s=>
-          `<div><div class="section-label">${s.title}</div>
-           <div>${s.body.map(l=>l?l.replace(/^- /,"• "):"<br/>").join("<br/>")}</div>
-           </div>`
-        ).join("<hr/>");
-      }catch(e){out.textContent="Error: "+e.message}
+        const { courseMarkdown }=await postData("https://creatorcore-api.vercel.app/api/courseforge",payload);
+        console.log("courseMarkdown:",courseMarkdown);
+        out.textContent = courseMarkdown;
+      }catch(e){
+        console.error("CourseForge error:",e);
+        out.textContent="Error: "+e.message;
+      }
     };
   });
   </script>
