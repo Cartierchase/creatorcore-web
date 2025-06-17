@@ -4,7 +4,6 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>CreatorCore AI Demo</title>
-  <!-- Tally Popup Embed -->
   <script async src="https://tally.so/widgets/embed.js"></script>
   <style>
     body { font-family: sans-serif; padding: 2rem; background: #f9f9f9; }
@@ -12,8 +11,7 @@
     img.logo { max-width: 200px; display: block; margin: 0 auto 1rem; }
     .container {
       max-width: 600px; margin: auto; background: #fff; padding: 2rem;
-      border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      margin-bottom: 2rem;
+      border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 2rem;
     }
     label { font-weight: bold; margin-top: 1rem; display: block; }
     select, input, button, pre {
@@ -47,114 +45,116 @@
   <!-- HookBrain Module -->
   <div class="container">
     <h2>HookBrain</h2>
-
     <label for="niche">Top Niches</label>
     <select id="niche">
       <option disabled selected>Choose a niche…</option>
-      <option>Fitness & Health</option>
-      <option>Beauty & Skincare</option>
-      <option>Travel & Adventure</option>
-      <option>Food & Cooking</option>
-      <option>Personal Finance</option>
-      <option>Tech & Gadgets</option>
-      <option>Lifestyle & Wellness</option>
-      <option>Parenting & Family</option>
-      <option>Fashion & Style</option>
+      <option>Fitness & Health</option><option>Beauty & Skincare</option><option>Travel & Adventure</option>
+      <option>Food & Cooking</option><option>Personal Finance</option><option>Tech & Gadgets</option>
+      <option>Lifestyle & Wellness</option><option>Parenting & Family</option><option>Fashion & Style</option>
       <option>Gaming & Esports</option>
     </select>
-
     <label for="tone">Top Tones</label>
     <select id="tone">
       <option disabled selected>Choose a tone…</option>
-      <option>Inspirational</option>
-      <option>Motivational</option>
-      <option>Humorous</option>
-      <option>Authentic</option>
-      <option>Empathetic</option>
-      <option>Edgy</option>
-      <option>Educational</option>
-      <option>Conversational</option>
-      <option>Confident</option>
-      <option>Upbeat</option>
+      <option>Inspirational</option><option>Motivational</option><option>Humorous</option>
+      <option>Authentic</option><option>Empathetic</option><option>Edgy</option>
+      <option>Educational</option><option>Conversational</option><option>Confident</option><option>Upbeat</option>
     </select>
-
     <label for="goal">Top Goals</label>
     <select id="goal">
       <option disabled selected>Choose a goal…</option>
-      <option>Increase Engagement</option>
-      <option>Gain Followers</option>
-      <option>Drive Clicks</option>
-      <option>Grow Brand Awareness</option>
-      <option>Generate Leads</option>
-      <option>Boost Sales</option>
-      <option>Build Community</option>
-      <option>Promote Event</option>
-      <option>Educate Audience</option>
+      <option>Increase Engagement</option><option>Gain Followers</option><option>Drive Clicks</option>
+      <option>Grow Brand Awareness</option><option>Generate Leads</option><option>Boost Sales</option>
+      <option>Build Community</option><option>Promote Event</option><option>Educate Audience</option>
       <option>Gather Feedback</option>
     </select>
-
     <label for="topic">Your Custom Topic</label>
     <input id="topic" type="text" placeholder="Enter your own topic…"/>
-
     <label for="postType">Top Post Types</label>
     <select id="postType">
       <option disabled selected>Select post type…</option>
-      <option>Instagram Feed</option>
-      <option>Instagram Story</option>
-      <option>Instagram Reel</option>
-      <option>TikTok Video</option>
-      <option>YouTube Short</option>
-      <option>YouTube Long-Form</option>
-      <option>Facebook Post</option>
-      <option>LinkedIn Article</option>
-      <option>Twitter Thread</option>
+      <option>Instagram Feed</option><option>Instagram Story</option><option>Instagram Reel</option>
+      <option>TikTok Video</option><option>YouTube Short</option><option>YouTube Long-Form</option>
+      <option>Facebook Post</option><option>LinkedIn Article</option><option>Twitter Thread</option>
     </select>
-
     <button id="generateCaptions">Generate HookBrain Content</button>
     <pre id="hookbrainOutput">Your HookBrain output…</pre>
   </div>
 
   <script>
   document.addEventListener("DOMContentLoaded", () => {
-    // Load user & plan
+    // 1) Load user & plan
     const email = localStorage.getItem("cc_user") || "";
     const plan  = localStorage.getItem("cc_plan") || "free";
     window.currentUser = { email, plan };
 
-    // Dev-mode toggle
+    // 2) Dev-mode toggle
     const DEV_IDS = ["dev@yourdomain.com"];
     const isDev = DEV_IDS.includes(email) || location.search.includes("dev=true");
     if (isDev) {
       document.getElementById("planSelector").style.display = "block";
       document.getElementById("userPlan").value = plan;
     }
+    function getPlan() { return isDev ? document.getElementById("userPlan").value : plan; }
 
-    function getPlan() {
-      return isDev ? document.getElementById("userPlan").value : plan;
+    // 3) Model selection by plan
+    function pickModel() {
+      const p = getPlan();
+      if (p === "creator") return "gpt-4-0314";
+      if (p === "pro" || p === "lifetime") return "gpt-4-turbo";
+      return "gpt-3.5-turbo";  // free
     }
 
+    // 4) Usage counters
+    function canCallHookBrain() {
+      const p = getPlan();
+      if (p !== "free") return true;
+      const today = new Date().toISOString().slice(0,10);
+      const key = `hb_count_${today}`;
+      let count = parseInt(localStorage.getItem(key) || "0",10);
+      if (count >= 3) return false;
+      localStorage.setItem(key, ++count);
+      return true;
+    }
+
+    function canCallCourseForge() {
+      const p = getPlan();
+      if (p !== "free" && p !== "creator") return true;
+      const month = new Date().toISOString().slice(0,7);
+      const key = `cf_count_${month}`;
+      let count = parseInt(localStorage.getItem(key) || "0",10);
+      const limit = (p==="free")?1:3;
+      if (count >= limit) return false;
+      localStorage.setItem(key, ++count);
+      return true;
+    }
+
+    // 5) POST helper with model
     async function postData(url, body) {
       const res = await fetch(url, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-          "X-User-Plan":   getPlan(),
-          "X-User-Id":     email
+          "Content-Type":"application/json",
+          "X-User-Plan": getPlan(),
+          "X-User-Id":   email
         },
-        body: JSON.stringify(body)
+        body: JSON.stringify({ ...body, model: pickModel() })
       });
       const text = await res.text();
       if (!res.ok) {
-        let msg;
-        try { msg = JSON.parse(text).error; }
-        catch { msg = text; }
-        throw new Error(msg || res.status);
+        let err;
+        try { err = JSON.parse(text).error; }
+        catch { err = text; }
+        throw new Error(err || res.status);
       }
       return JSON.parse(text);
     }
 
-    // HookBrain handler
+    // 6) HookBrain handler with limit
     document.getElementById("generateCaptions").onclick = async () => {
+      if (!canCallHookBrain()) {
+        return alert("Free plan allows only 3 captions/day. Upgrade to continue.");
+      }
       const payload = {
         niche:    document.getElementById("niche").value,
         tone:     document.getElementById("tone").value,
@@ -175,6 +175,9 @@
         out.textContent = "Error: " + e.message;
       }
     };
+
+    // Note: CourseForge removed per last request
+
   });
   </script>
 </body>
