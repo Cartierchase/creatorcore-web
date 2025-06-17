@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>CreatorCore AI Demo</title>
   <script async src="https://tally.so/widgets/embed.js"></script>
   <style>
@@ -11,8 +10,7 @@
     img.logo { max-width: 200px; display: block; margin: 0 auto 1rem; }
     .container {
       max-width: 600px; margin: auto; background: #fff; padding: 2rem;
-      border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      margin-bottom: 2rem;
+      border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 2rem;
     }
     label { font-weight: bold; margin-top: 1rem; display: block; }
     select, input, button, pre {
@@ -22,6 +20,7 @@
     button { background: #0066ff; color: #fff; border: none; cursor: pointer; }
     pre { background: #f0f0f0; white-space: pre-wrap; min-height: 3em; padding: 1rem; }
     .section-label { font-weight: bold; margin-top:1em; }
+    #planSelector { display: none; margin-bottom: 1rem; }
   </style>
 </head>
 <body>
@@ -30,18 +29,69 @@
   <img class="logo" src="logo.png" alt="CreatorCore AI Logo"/>
   <img src="banner.png" alt="CreatorCore AI Banner"/>
 
-  <!-- Nav -->
-  <nav>
-    <a href="index.html">Demo</a> | <a href="pricing.html">Pricing</a>
-  </nav>
+  <!-- Navigation -->
+  <nav><a href="index.html">Demo</a> | <a href="pricing.html">Pricing</a></nav>
 
-  <!-- HookBrain (unchanged) -->
-  <div class="container">
-    <h2>Hook Brain (All-In-One Content)</h2>
-    <!-- inputs omitted for brevity… -->
+  <!-- Dev Mode Plan Selector -->
+  <div id="planSelector" class="container">
+    <label>Your Plan (Dev Mode)</label>
+    <select id="userPlan">
+      <option value="free">Free (3 cap/day, 1 course/mo)</option>
+      <option value="creator">Creator ($29/mo: unlimited caps, 3 blueprints)</option>
+      <option value="pro">Pro ($99/mo: batching, funnels, priority)</option>
+      <option value="lifetime">Lifetime ($497 one-time)</option>
+    </select>
   </div>
 
-  <!-- CourseForge Module -->
+  <!-- Hook Brain Module -->
+  <div class="container">
+    <h2>Hook Brain (All-In-One Content)</h2>
+
+    <label for="niche">Niche</label>
+    <select id="niche">
+      <option disabled selected>Choose a niche…</option>
+      <option>Fitness</option><option>Beauty</option><option>Travel</option>
+      <option>Food</option><option>Finance</option><option>Tech</option>
+      <option>Marketing</option><option>Gaming</option><option>Fashion</option>
+      <option>Wellness</option><option>Entrepreneurship</option><option>Parenting</option>
+    </select>
+
+    <label for="tone">Tone</label>
+    <select id="tone">
+      <option disabled selected>Choose a tone…</option>
+      <option>Inspirational</option><option>Motivational</option><option>Humorous</option>
+      <option>Authentic</option><option>Edgy</option><option>Warm</option>
+      <option>Educational</option><option>Confessional</option><option>Professional</option>
+      <option>Energetic</option>
+    </select>
+
+    <label for="goal">Goal</label>
+    <select id="goal">
+      <option disabled selected>Choose a goal…</option>
+      <option>Engagement</option><option>Followers</option>
+      <option>Brand Awareness</option><option>Leads</option>
+      <option>Sales</option><option>Community Building</option>
+      <option>Website Clicks</option><option>Newsletter Signups</option>
+      <option>Event RSVPs</option>
+    </select>
+
+    <label for="topic">Topic</label>
+    <input id="topic" placeholder="Specific topic (e.g. Meal Prepping)"/>
+
+    <label for="postType">Post Type</label>
+    <select id="postType">
+      <option disabled selected>Select post type…</option>
+      <option>Instagram</option><option>TikTok</option><option>Reels</option>
+      <option>YouTube</option><option>Shorts</option><option>Facebook</option>
+      <option>LinkedIn</option>
+    </select>
+
+    <button id="generateCaptions">Generate All Content</button>
+    <pre id="hookbrainOutput">All generated content will appear here…</pre>
+    <button onclick="location='pricing.html'">Upgrade or View Plans</button>
+  </div>
+
+  <!-- Course Forge Module -->
   <div class="container">
     <h2>Course Forge (High-Ticket Course Builder)</h2>
 
@@ -49,84 +99,125 @@
     <select id="cfTopic">
       <option disabled selected>Select a topic…</option>
       <option>Mindset Mastery</option><option>Time Management</option>
-      <!-- etc… -->
+      <option>Stress Relief</option><option>Productivity Hacks</option>
+      <option>Confidence Building</option><option>Financial Freedom</option>
+      <option>Relationship Deep-Dive</option><option>Career Acceleration</option>
+      <option>Health & Wellness</option><option>Entrepreneurial Mindset</option>
     </select>
 
     <label for="cfAudience">Audience</label>
     <select id="cfAudience">
       <option disabled selected>Select an audience…</option>
-      <option>Busy Professionals</option><!-- etc… -->
+      <option>Busy Professionals</option><option>Stay-at-Home Parents</option>
+      <option>Aspiring Coaches</option><option>Recent Graduates</option>
+      <option>Corporate Executives</option><option>Freelancers & Creatives</option>
+      <option>Fitness Enthusiasts</option><option>Small Business Owners</option>
+      <option>Educators</option><option>Entrepreneurs</option>
     </select>
 
     <label for="cfFormat">Format</label>
     <select id="cfFormat">
       <option disabled selected>Select format…</option>
-      <option>Video Course</option><!-- etc… -->
+      <option>Video Course</option><option>Written Guide</option>
+      <option>Hybrid (Video + Workbook)</option><option>Live Workshop</option>
+      <option>Webinar Series</option>
     </select>
 
     <label for="cfLevel">Skill Level</label>
     <select id="cfLevel">
       <option disabled selected>Select level…</option>
-      <option>Beginner</option><!-- etc… -->
+      <option>Beginner</option><option>Intermediate</option>
+      <option>Advanced</option><option>All Levels (Comprehensive)</option>
     </select>
 
     <button id="generateCourse">Generate Course</button>
-    <div id="courseOutput">
-      <pre>Your complete course package will appear here…</pre>
-    </div>
+    <div id="courseOutput"><pre>Your complete course package will appear here…</pre></div>
     <button onclick="location='pricing.html'">Upgrade or View Plans</button>
   </div>
 
   <script>
   document.addEventListener("DOMContentLoaded", () => {
-    // assume currentUser, getPlan(), postData() are defined above…
+    // Load stored email & plan
+    const storedEmail = localStorage.getItem("cc_user")||"";
+    const storedPlan  = localStorage.getItem("cc_plan")||"free";
+    window.currentUser={ email:storedEmail, plan:storedPlan };
 
-    // CourseForge button
-    document.getElementById("generateCourse").addEventListener("click", async () => {
-      const payload = {
-        topic:    document.getElementById("cfTopic").value,
-        audience: document.getElementById("cfAudience").value,
-        format:   document.getElementById("cfFormat").value,
-        level:    document.getElementById("cfLevel").value
+    // Dev-mode
+    const DEV_IDS=["dev@yourdomain.com"];
+    const isDev=DEV_IDS.includes(storedEmail)||location.search.includes("dev=true");
+    if(isDev){
+      document.getElementById("planSelector").style.display="block";
+      document.getElementById("userPlan").value=storedPlan;
+    }
+    function getPlan(){ return isDev?document.getElementById("userPlan").value:window.currentUser.plan; }
+
+    // postData helper
+    async function postData(url,body){
+      const headers={
+        "Content-Type":"application/json",
+        "X-User-Plan":getPlan(),
+        "X-User-Id":window.currentUser.email
       };
-      const outputDiv = document.getElementById("courseOutput");
-      outputDiv.innerHTML = "<pre>Generating course…</pre>";
+      const res=await fetch(url,{method:"POST",headers,body:JSON.stringify(body)});
+      const text=await res.text();
+      if(!res.ok){let m;try{m=JSON.parse(text).error}catch{m=text}throw new Error(m||res.status)}
+      return JSON.parse(text);
+    }
 
-      try {
-        const { courseMarkdown } = await postData(
-          "https://creatorcore-api.vercel.app/api/courseforge",
-          payload
-        );
+    // HookBrain
+    document.getElementById("generateCaptions").onclick=async()=>{
+      const p={
+        niche:document.getElementById("niche").value,
+        tone:document.getElementById("tone").value,
+        goal:document.getElementById("goal").value,
+        topic:document.getElementById("topic").value,
+        postType:document.getElementById("postType").value
+      };
+      try{
+        const d=await postData("https://creatorcore-api.vercel.app/api/hookbrain",p);
+        const out=[
+          "**Captions:**\n"+(d.captions||[]).join("\n\n"),
+          "**Script:**\n"+(d.script||""),
+          "**Idea:**\n"+(d.idea||""),
+          "**SEO & Hashtags:**\n"+(d.seo||[]).join(", ")
+        ].join("\n\n— — —\n\n");
+        document.getElementById("hookbrainOutput").textContent=out;
+      }catch(e){
+        document.getElementById("hookbrainOutput").textContent="Error: "+e.message;
+      }
+    };
 
-        // Split into sections by "## "
-        const parts = courseMarkdown.split("\n## ").map((part, i) => {
-          if (i===0 && part.startsWith("## ")) part = part.slice(3);
+    // CourseForge
+    document.getElementById("generateCourse").onclick=async()=>{
+      const p={
+        topic:document.getElementById("cfTopic").value,
+        audience:document.getElementById("cfAudience").value,
+        format:document.getElementById("cfFormat").value,
+        level:document.getElementById("cfLevel").value
+      };
+      const container=document.getElementById("courseOutput");
+      container.innerHTML="<pre>Generating…</pre>";
+      try{
+        const { courseMarkdown }=await postData("https://creatorcore-api.vercel.app/api/courseforge",p);
+        // split and render
+        const parts=courseMarkdown.split("\n## ").map((part,i)=>{
+          if(i===0 && part.startsWith("## ")) part=part.slice(3);
           return part.trim();
         });
-
-        // Build HTML
-        const htmlSections = parts.map(raw => {
-          const [heading, ...rest] = raw.split("\n");
-          const body = rest.join("\n");
-          // Determine label from heading
-          const label = heading;
-          // Convert lists & linebreaks to HTML
-          const htmlBody = body
-            .replace(/^- (.+)$/gm, "• $1")      // convert "- " to bullet
-            .replace(/\n/g, "<br/>");          // line breaks
-          return `<div>
-            <div class="section-label">${label}</div>
-            <div>${htmlBody}</div>
-          </div>`;
-        });
-
-        outputDiv.innerHTML = htmlSections.join("<hr/>");
-
-      } catch (err) {
-        outputDiv.innerHTML = `<pre>Error: ${err.message}</pre>`;
+        const html=parts.map(raw=>{
+          const [h,...b]=raw.split("\n");
+          const body=b.join("\n")
+            .replace(/^- (.+)$/gm,"• $1")
+            .replace(/\n/g,"<br/>");
+          return `<div><div class="section-label">${h}</div><div>${body}</div></div>`;
+        }).join("<hr/>");
+        container.innerHTML=html;
+      }catch(e){
+        container.innerHTML="<pre>Error: "+e.message+"</pre>";
       }
-    });
+    };
   });
   </script>
+
 </body>
 </html>
