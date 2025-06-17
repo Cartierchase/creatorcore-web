@@ -5,17 +5,20 @@
   <title>CreatorCore AI Demo</title>
   <script async src="https://tally.so/widgets/embed.js"></script>
   <style>
-    /* ... your existing styles ... */
+    /* your existing styles */
   </style>
 </head>
 <body>
-  <!-- Injected Dev List (Vercel will replace __DEV__ with process.env.DEV_USER_IDS) -->
+  <!-- Hard-coded Dev List -->
   <script>
-    // Vercel will inline the actual value for you here
-    const DEV_USER_IDS = "__DEV__".split(",");
+    const DEV_USER_IDS = [
+      "dev1@yourdomain.com",
+      "dev2@yourdomain.com"
+    ];
   </script>
 
-  <!-- Logo, Nav, Waitlist, etc. -->
+  <!-- Logo, Nav, Waitlist, Plan Selector, Hook Brain, Course Forge... -->
+  <!-- (rest of your HTML unchanged) -->
 
   <script>
   document.addEventListener("DOMContentLoaded", () => {
@@ -23,7 +26,6 @@
     const storedPlan  = localStorage.getItem("cc_plan") || "free";
     window.currentUser = { email: storedEmail, plan: storedPlan };
 
-    // Dev-mode detection using our injected global
     const isDev = DEV_USER_IDS.includes(storedEmail) || location.search.includes("dev=true");
     if (isDev) {
       document.getElementById("planSelector").style.display = "block";
@@ -31,28 +33,60 @@
     }
 
     function getPlan() {
-      return isDev ? document.getElementById("userPlan").value : window.currentUser.plan;
+      return isDev
+        ? document.getElementById("userPlan").value
+        : window.currentUser.plan;
     }
 
     async function postData(url, body) {
+      console.log("POST", url, body, "plan:", getPlan());
       const headers = {
         "Content-Type": "application/json",
         "X-User-Plan":  getPlan(),
         "X-User-Id":    window.currentUser.email
       };
       const res = await fetch(url, { method: "POST", headers, body: JSON.stringify(body) });
+      console.log("Status", res.status);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
+      const data = await res.json();
+      console.log("Response", data);
+      return data;
     }
 
-    // HookBrain handler
     document.getElementById("generateCaptions").addEventListener("click", async () => {
-      /* ... same as before ... */
+      try {
+        const payload = {
+          niche:    document.getElementById("niche").value,
+          tone:     document.getElementById("tone").value,
+          goal:     document.getElementById("goal").value,
+          topic:    document.getElementById("topic").value,
+          postType: document.getElementById("postType").value
+        };
+        const d = await postData("https://creatorcore-api.vercel.app/api/hookbrain", payload);
+        document.getElementById("captionsOutput").textContent = (d.captions||[]).join("\n\n");
+        document.getElementById("scriptOutput").textContent   = d.script   || "";
+        document.getElementById("ideaOutput").textContent     = d.idea     || "";
+        document.getElementById("seoOutput").textContent      = (d.seo||[]).join(", ");
+      } catch (err) {
+        console.error(err);
+        document.getElementById("captionsOutput").textContent = "Error: " + err.message;
+      }
     });
 
-    // CourseForge handler
     document.getElementById("generateCourse").addEventListener("click", async () => {
-      /* ... same as before ... */
+      try {
+        const payload = {
+          topic:    document.getElementById("cfTopic").value,
+          audience: document.getElementById("cfAudience").value,
+          format:   document.getElementById("cfFormat").value,
+          level:    document.getElementById("cfLevel").value
+        };
+        const d = await postData("https://creatorcore-api.vercel.app/api/courseforge", payload);
+        document.getElementById("courseOutput").textContent = d.course || "";
+      } catch (err) {
+        console.error(err);
+        document.getElementById("courseOutput").textContent = "Error: " + err.message;
+      }
     });
   });
   </script>
