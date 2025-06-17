@@ -5,140 +5,131 @@
   <title>CreatorCore AI Demo</title>
   <script async src="https://tally.so/widgets/embed.js"></script>
   <style>
-    body { font-family: sans-serif; padding: 2rem; background: #f9f9f9; }
-    nav { text-align: center; margin-bottom: 1rem; }
-    img.logo { max-width: 200px; display: block; margin: 0 auto 1rem; }
+    body { font-family:sans-serif; padding:2rem; background:#f9f9f9 }
+    nav { text-align:center; margin-bottom:1rem }
+    img.logo { max-width:200px; display:block; margin:0 auto 1rem }
     .container {
-      max-width: 600px; margin: auto; background: #fff; padding: 2rem;
-      border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 2rem;
+      max-width:600px; margin:auto; background:#fff; padding:2rem;
+      border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.1); margin-bottom:2rem
     }
     input, select, button, pre {
-      display: block; width: 100%; margin: .5rem 0; padding: .5rem;
-      border: 1px solid #ddd; border-radius: 4px;
+      display:block; width:100%; margin:.5rem 0; padding:.5rem;
+      border:1px solid #ddd; border-radius:4px
     }
-    button { background: #0066ff; color: #fff; border: none; cursor: pointer; }
-    pre { background: #f0f0f0; white-space: pre-wrap; min-height: 3em; }
-    #planSelector { display: none; margin-bottom: 1rem; }
+    button { background:#0066ff; color:#fff; border:none; cursor:pointer }
+    pre { background:#f0f0f0; white-space:pre-wrap; min-height:3em }
+    #planSelector { display:none; margin-bottom:1rem }
   </style>
 </head>
 <body>
+
   <!-- Logo & Banner -->
   <img class="logo" src="logo.png" alt="CreatorCore AI Logo"/>
   <img src="banner.png" alt="CreatorCore AI Banner"/>
 
-  <!-- Navigation -->
+  <!-- Nav -->
   <nav>
-    <a href="index.html">Demo</a> | <a href="pricing.html">Pricing</a>
+    <a href="index.html">Demo</a> |
+    <a href="pricing.html">Pricing</a>
   </nav>
-
-  <!-- Join Waitlist -->
-  <div class="container" style="text-align:center">
-    <button
-      data-tally-open="3xEVK9"
-      data-tally-layout="modal"
-      data-tally-emoji-text="👋"
-      data-tally-emoji-animation="wave"
-      style="font-size:1rem; padding:.75rem 1.5rem;"
-    >
-      👉 Join the Waitlist
-    </button>
-    <p style="font-size:.9rem; color:#555;">Click to sign up and get free early access</p>
-  </div>
 
   <!-- Dev Mode Plan Selector -->
   <div id="planSelector" class="container">
     <label><strong>DEV MODE: Your Plan</strong></label>
     <select id="userPlan">
-      <option value="free">Free</option>
-      <option value="creator">Creator</option>
-      <option value="pro">Pro</option>
-      <option value="lifetime">Lifetime</option>
+      <option value="free">Free (3 captions/day, 1 course/month)</option>
+      <option value="creator">Creator ($29/mo: unlimited captions, 3 blueprints)</option>
+      <option value="pro">Pro ($99/mo: unlimited + batching + funnel writer)</option>
+      <option value="lifetime">Lifetime ($497 one-time)</option>
     </select>
   </div>
 
   <!-- Hook Brain Module -->
   <div class="container">
-    <h2>Hook Brain (Captions + Script + Idea + SEO & Hashtags)</h2>
-    <input id="niche" placeholder="Niche (e.g. Fitness)"/>
-    <input id="tone" placeholder="Tone (e.g. Inspirational)"/>
-    <input id="goal" placeholder="Goal (e.g. Engagement)"/>
-    <input id="topic" placeholder="Topic (e.g. Consistency)"/>
+    <h2>Hook Brain (All-In-One)</h2>
+
+    <label for="niche">Niche</label>
+    <select id="niche">
+      <option disabled selected>Choose a niche…</option>
+      <option>Fitness</option><option>Beauty</option><option>Travel</option>
+      <option>Food</option><option>Finance</option><option>Tech</option>
+      <option>Parenting</option><option>Fashion</option><option>Gaming</option>
+      <option>Wellness</option>
+    </select>
+
+    <label for="tone">Tone</label>
+    <select id="tone">
+      <option disabled selected>Choose a tone…</option>
+      <option>Inspirational</option><option>Motivational</option>
+      <option>Humorous</option><option>Authentic</option>
+      <option>Edgy</option><option>Warm</option>
+      <option>Educational</option><option>Confessional</option>
+    </select>
+
+    <label for="goal">Goal</label>
+    <select id="goal">
+      <option disabled selected>Choose a goal…</option>
+      <option>Engagement</option><option>Followers</option>
+      <option>Brand Awareness</option><option>Leads</option>
+      <option>Sales</option><option>Community Building</option>
+    </select>
+
+    <label for="topic">Topic</label>
+    <input id="topic" placeholder="Specific topic (e.g. Meal Prepping)"/>
+
+    <label for="postType">Post Type</label>
     <select id="postType">
-      <option disabled selected>Post Type</option>
-      <option>Instagram</option><option>TikTok</option><option>Reels</option>
-      <option>YouTube</option><option>Shorts</option>
+      <option disabled selected>Select post type…</option>
+      <option>Instagram</option><option>TikTok</option>
+      <option>Reels</option><option>YouTube</option>
+      <option>Shorts</option>
     </select>
-    <button id="generateCaptions">Generate Content</button>
-    <pre id="captionsOutput"></pre>
-    <pre id="scriptOutput"></pre>
-    <pre id="ideaOutput"></pre>
-    <pre id="seoOutput"></pre>
+
+    <button id="generateCaptions">Generate All Content</button>
+    <pre id="hookbrainOutput">All generated content will appear here…</pre>
     <button onclick="location='pricing.html'">Upgrade or View Plans</button>
   </div>
 
-  <!-- Course Forge Module -->
-  <div class="container">
-    <h2>Course Forge (Course Builder)</h2>
-    <input id="cfTopic" placeholder="Course Topic (e.g. Budgeting)"/>
-    <input id="cfAudience" placeholder="Audience (e.g. Busy moms)"/>
-    <select id="cfFormat">
-      <option disabled selected>Format</option>
-      <option>video</option><option>written</option><option>hybrid</option>
-    </select>
-    <select id="cfLevel">
-      <option disabled selected>Skill Level</option>
-      <option>beginner</option><option>intermediate</option><option>expert</option>
-    </select>
-    <button id="generateCourse">Generate Course</button>
-    <pre id="courseOutput"></pre>
-    <button onclick="location='pricing.html'">Upgrade or View Plans</button>
-  </div>
-
-  <!-- Core Script -->
   <script>
   document.addEventListener("DOMContentLoaded", () => {
-    // 1) Load stored user & plan
+    // Load stored user & plan
     const storedEmail = localStorage.getItem("cc_user") || "";
     const storedPlan  = localStorage.getItem("cc_plan") || "free";
-    window.currentUser = { email: storedEmail, plan: storedPlan };
+    window.currentUser = { email:storedEmail, plan:storedPlan };
 
-    // 2) Dev-mode detection
-    const DEV_USER_IDS = ["dev1@yourdomain.com","dev2@yourdomain.com"];
+    // Dev-mode detection
+    const DEV_USER_IDS = ["you@yourdomain.com"];
     const isDev = DEV_USER_IDS.includes(storedEmail) || location.search.includes("dev=true");
     if (isDev) {
       document.getElementById("planSelector").style.display = "block";
       document.getElementById("userPlan").value = storedPlan;
     }
 
-    // 3) Plan helper
-    function getPlan() {
+    // Helper to get plan
+    function getPlan(){
       return isDev
         ? document.getElementById("userPlan").value
         : window.currentUser.plan;
     }
 
-    // 4) Robust postData helper
-    async function postData(url, body) {
+    // Robust postData
+    async function postData(url, body){
       const headers = {
-        "Content-Type": "application/json",
-        "X-User-Plan":  getPlan(),
-        "X-User-Id":    window.currentUser.email
+        "Content-Type":"application/json",
+        "X-User-Plan": getPlan(),
+        "X-User-Id":   window.currentUser.email
       };
-      const res = await fetch(url, {
-        method: "POST",
-        headers,
-        body: JSON.stringify(body)
-      });
+      const res = await fetch(url, { method:"POST", headers, body:JSON.stringify(body) });
       const text = await res.text();
-      if (!res.ok) {
+      if (!res.ok){
         let msg;
-        try { msg = JSON.parse(text).error; } catch { msg = text; }
-        throw new Error(msg || `HTTP ${res.status}`);
+        try{ msg = JSON.parse(text).error } catch{ msg = text }
+        throw new Error(msg||`HTTP ${res.status}`);
       }
       return JSON.parse(text);
     }
 
-    // 5) Hook Brain button
+    // Generate content
     document.getElementById("generateCaptions").addEventListener("click", async () => {
       const payload = {
         niche:    document.getElementById("niche").value,
@@ -149,28 +140,15 @@
       };
       try {
         const d = await postData("https://creatorcore-api.vercel.app/api/hookbrain", payload);
-        document.getElementById("captionsOutput").textContent = (d.captions||[]).join("\n\n");
-        document.getElementById("scriptOutput").textContent   = d.script   || "";
-        document.getElementById("ideaOutput").textContent     = d.idea     || "";
-        document.getElementById("seoOutput").textContent      = (d.seo||[]).join(", ");
-      } catch (err) {
-        document.getElementById("captionsOutput").textContent = "Error: " + err.message;
-      }
-    });
-
-    // 6) Course Forge button
-    document.getElementById("generateCourse").addEventListener("click", async () => {
-      const payload = {
-        topic:    document.getElementById("cfTopic").value,
-        audience: document.getElementById("cfAudience").value,
-        format:   document.getElementById("cfFormat").value,
-        level:    document.getElementById("cfLevel").value
-      };
-      try {
-        const d = await postData("https://creatorcore-api.vercel.app/api/courseforge", payload);
-        document.getElementById("courseOutput").textContent = d.course || "";
-      } catch (err) {
-        document.getElementById("courseOutput").textContent = "Error: " + err.message;
+        const out = [
+          "**Captions:**\n" + (d.captions||[]).join("\n\n"),
+          "**Script:**\n"   + (d.script   || ""),
+          "**Idea:**\n"     + (d.idea     || ""),
+          "**SEO & Hashtags:**\n" + (d.seo||[]).join(", ")
+        ].join("\n\n— — —\n\n");
+        document.getElementById("hookbrainOutput").textContent = out;
+      } catch(err){
+        document.getElementById("hookbrainOutput").textContent = "Error: "+err.message;
       }
     });
   });
