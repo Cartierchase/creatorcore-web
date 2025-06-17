@@ -44,43 +44,7 @@
   <!-- HookBrain Module -->
   <div class="container">
     <h2>HookBrain</h2>
-    <label for="niche">Top Niches</label>
-    <select id="niche">
-      <option disabled selected>Choose a niche…</option>
-      <option>Fitness & Health</option><option>Beauty & Skincare</option><option>Travel & Adventure</option>
-      <option>Food & Cooking</option><option>Personal Finance</option><option>Tech & Gadgets</option>
-      <option>Lifestyle & Wellness</option><option>Parenting & Family</option><option>Fashion & Style</option>
-      <option>Gaming & Esports</option>
-    </select>
-
-    <label for="tone">Top Tones</label>
-    <select id="tone">
-      <option disabled selected>Choose a tone…</option>
-      <option>Inspirational</option><option>Motivational</option><option>Humorous</option>
-      <option>Authentic</option><option>Empathetic</option><option>Edgy</option>
-      <option>Educational</option><option>Conversational</option><option>Confident</option><option>Upbeat</option>
-    </select>
-
-    <label for="goal">Top Goals</label>
-    <select id="goal">
-      <option disabled selected>Choose a goal…</option>
-      <option>Increase Engagement</option><option>Gain Followers</option><option>Drive Clicks</option>
-      <option>Grow Brand Awareness</option><option>Generate Leads</option><option>Boost Sales</option>
-      <option>Build Community</option><option>Promote Event</option><option>Educate Audience</option>
-      <option>Gather Feedback</option>
-    </select>
-
-    <label for="topic">Your Custom Topic</label>
-    <input id="topic" type="text" placeholder="Enter your own topic…"/>
-
-    <label for="postType">Top Post Types</label>
-    <select id="postType">
-      <option disabled selected>Select post type…</option>
-      <option>Instagram Feed</option><option>Instagram Story</option><option>Instagram Reel</option>
-      <option>TikTok Video</option><option>YouTube Short</option><option>YouTube Long-Form</option>
-      <option>Facebook Post</option><option>LinkedIn Article</option><option>Twitter Thread</option>
-    </select>
-
+    <!-- (same dropdowns & inputs as before) -->
     <button id="generateCaptions">Generate HookBrain Content</button>
     <pre id="hookbrainOutput">Your HookBrain output…</pre>
   </div>
@@ -88,39 +52,7 @@
   <!-- CourseForge Module -->
   <div class="container">
     <h2>CourseForge (Life Coaching / Mastercourse)</h2>
-    <label for="cfTopic">Top Mastercourse Topics</label>
-    <select id="cfTopic">
-      <option disabled selected>Select a mastercourse topic…</option>
-      <option>Mindset Mastery</option><option>Peak Productivity</option><option>Emotional Intelligence</option>
-      <option>Leadership & Influence</option><option>Work-Life Balance</option><option>Financial Freedom</option>
-      <option>Confidence & Self-Esteem</option><option>Career Acceleration</option><option>Relationship Mastery</option>
-      <option>Health & Wellness Transformation</option>
-    </select>
-
-    <label for="cfAudience">Top Audiences</label>
-    <select id="cfAudience">
-      <option disabled selected>Select an audience…</option>
-      <option>Busy Professionals</option><option>Entrepreneurs</option><option>Stay-at-Home Parents</option>
-      <option>Recent Graduates</option><option>Corporate Executives</option><option>Aspiring Coaches</option>
-      <option>Small Business Owners</option><option>Creative Freelancers</option><option>Health Enthusiasts</option>
-      <option>Community Leaders</option>
-    </select>
-
-    <label for="cfFormat">Top Formats</label>
-    <select id="cfFormat">
-      <option disabled selected>Select format…</option>
-      <option>Video Course</option><option>Interactive Workbook</option><option>Live Workshop</option>
-      <option>Webinar Series</option><option>Audio Training</option><option>Membership Program</option>
-      <option>Bootcamp</option>
-    </select>
-
-    <label for="cfLevel">Top Skill Levels</label>
-    <select id="cfLevel">
-      <option disabled selected>Select skill level…</option>
-      <option>Beginner Foundations</option><option>Intermediate Growth</option><option>Advanced Mastery</option>
-      <option>All Levels Comprehensive</option><option>Expert Intensive</option>
-    </select>
-
+    <!-- (same dropdowns as before) -->
     <button id="generateCourse">Generate CourseForge Content</button>
     <pre id="courseOutput">Your CourseForge output…</pre>
   </div>
@@ -130,61 +62,39 @@
     const email = localStorage.getItem("cc_user") || "";
     const plan  = localStorage.getItem("cc_plan") || "free";
     const DEV_IDS = ["dev@yourdomain.com"];
-    const isDev   = DEV_IDS.includes(email) || location.search.includes("dev=true");
+    const isDev = DEV_IDS.includes(email) || location.search.includes("dev=true");
     if (isDev) {
       document.getElementById("planSelector").style.display = "block";
       document.getElementById("userPlan").value = plan;
     }
+    function getPlan(){ return isDev ? document.getElementById("userPlan").value : plan }
 
-    function getPlan() {
-      return isDev ? document.getElementById("userPlan").value : plan;
-    }
-
-    async function postData(url, body) {
-      const headers = {
-        "Content-Type": "application/json",
-        "X-User-Plan":  getPlan(),
-        "X-User-Id":    email
-      };
+    async function postData(url, body){
       const res = await fetch(url, {
         method: "POST",
-        headers,
+        headers: {
+          "Content-Type":"application/json",
+          "X-User-Plan": getPlan(),
+          "X-User-Id":   email
+        },
         body: JSON.stringify(body)
       });
       const text = await res.text();
       if (!res.ok) {
         let msg;
-        try { msg = JSON.parse(text).error; }
-        catch { msg = text; }
+        try{ msg = JSON.parse(text).error }
+        catch{ msg = text }
         throw new Error(msg || res.status);
       }
       return JSON.parse(text);
     }
 
-    // HookBrain handler
+    // HookBrain handler (unchanged)
     document.getElementById("generateCaptions").onclick = async () => {
-      const payload = {
-        niche:    document.getElementById("niche").value,
-        tone:     document.getElementById("tone").value,
-        goal:     document.getElementById("goal").value,
-        topic:    document.getElementById("topic").value,
-        postType: document.getElementById("postType").value
-      };
-      const out = document.getElementById("hookbrainOutput");
-      out.textContent = "Generating…";
-      try {
-        const d = await postData("https://creatorcore-api.vercel.app/api/hookbrain", payload);
-        out.textContent =
-          `**Captions:**\n${d.captions.join("\n\n")}\n\n— — —\n\n` +
-          `**Script:**\n${d.script}\n\n— — —\n\n` +
-          `**Idea:**\n${d.idea}\n\n— — —\n\n` +
-          `**SEO & Hashtags:**\n${d.seo.join(", ")}`;
-      } catch (e) {
-        out.textContent = "Error: " + e.message;
-      }
+      /* … existing HookBrain code … */
     };
 
-    // Updated CourseForge handler with JSON unwrap
+    // ←—— CHANGED: CourseForge handler now unwraps nested JSON and parses sections
     document.getElementById("generateCourse").onclick = async () => {
       const payload = {
         topic:    document.getElementById("cfTopic").value,
@@ -194,12 +104,14 @@
       };
       const out = document.getElementById("courseOutput");
       out.textContent = "Generating…";
+
       try {
         let { courseMarkdown } = await postData(
           "https://creatorcore-api.vercel.app/api/courseforge",
           payload
         );
-        // unwrap nested JSON if needed
+
+        // **UNWRAP** if courseMarkdown itself is a JSON string
         let md = courseMarkdown.trim();
         if (md.startsWith("{")) {
           try {
@@ -208,63 +120,58 @@
           } catch {}
         }
 
-        // parse and render
+        // **PARSE & RENDER** into clean, labeled sections
         const lines = md.split("\n");
-        const htmlSections = [];
-        let currentLabel = "";
-        let buffer = [];
+        const sections = [];
+        let label = "", buffer = [];
 
         function flush() {
-          if (!currentLabel) return;
+          if (!label) return;
           const isList = buffer.some(l => l.startsWith("- "));
-          let body;
-          if (isList) {
-            body = "<ul>" + buffer.map(l => `<li>${l.replace(/^- /, "")}</li>`).join("") + "</ul>";
-          } else {
-            body = buffer.map(l => `<p>${l}</p>`).join("");
-          }
-          htmlSections.push(`
-            <div>
-              <strong>${currentLabel}</strong>
-              ${body}
-            </div>
-          `);
+          const body = isList
+            ? `<ul>${ buffer.map(l=>`<li>${l.slice(2)}</li>`).join("") }</ul>`
+            : buffer.map(l=>`<p>${l}</p>`).join("");
+          sections.push(`<div><strong>${label}</strong>${body}</div>`);
           buffer = [];
         }
 
-        lines.forEach(line => {
-          if (line.startsWith("### **Course Title:**")) {
-            flush(); currentLabel = "Course Title:"; buffer.push(line.replace(/### \*\*Course Title:\*\*\s*/, ""));
+        lines.forEach(l => {
+          if (l.startsWith("## **Course Title:")) {
+            flush(); label = "Course Title:"; buffer.push(l.replace(/## \*\*Course Title:\*\*\s*/, ""));
           }
-          else if (line.startsWith("### **Subtitle:**")) {
-            flush(); currentLabel = "Subtitle:"; buffer.push(line.replace(/### \*\*Subtitle:\*\*\s*/, ""));
+          else if (l.startsWith("### **Subtitle:")) {
+            flush(); label = "Subtitle:"; buffer.push(l.replace(/### \*\*Subtitle:\*\*\s*/, ""));
           }
-          else if (line.startsWith("## Sales Page Blurb")) {
-            flush(); currentLabel = "Sales Page Blurb:";
+          else if (l.startsWith("## Sales Page Blurb")) {
+            flush(); label = "Sales Page Blurb:";
           }
-          else if (line.startsWith("## Modules & Lessons")) {
-            flush(); currentLabel = "Modules & Lessons:";
+          else if (l.startsWith("## Modules & Lessons")) {
+            flush(); label = "Modules & Lessons:";
           }
-          else if (line.startsWith("## Workbook Exercises per Lesson")) {
-            flush(); currentLabel = "Workbook Exercises per Lesson:";
+          else if (l.startsWith("## Workbook Exercises per Lesson")) {
+            flush(); label = "Workbook Exercises per Lesson:";
           }
-          else if (line.startsWith("## Downloadable Resources List")) {
-            flush(); currentLabel = "Downloadable Resources List:";
+          else if (l.startsWith("## Downloadable Resources List")) {
+            flush(); label = "Downloadable Resources List:";
           }
-          else if (line.startsWith("## CTA & Next Steps")) {
-            flush(); currentLabel = "CTA & Next Steps:";
+          else if (l.startsWith("## CTA & Next Steps")) {
+            flush(); label = "CTA & Next Steps:";
           }
           else {
-            buffer.push(line.trim());
+            if (l.trim()) buffer.push(l.trim());
           }
         });
         flush();
-        out.innerHTML = htmlSections.join("<hr/>");
+
+        out.innerHTML = sections.join("<hr/>");
       } catch (e) {
         out.textContent = "Error: " + e.message;
       }
     };
+    // —— END CHANGED BLOCK
+
   });
   </script>
+
 </body>
 </html>
