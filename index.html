@@ -3,31 +3,33 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>CreatorCore AI</title>
+  <title>CreatorCore AI Demo</title>
   <script async src="https://tally.so/widgets/embed.js"></script>
   <style>
-    body { font-family: sans-serif; padding: 2rem; background: #f9f9f9 }
-    nav { text-align: center; margin-bottom: 1rem }
-    img.logo { max-width: 200px; display: block; margin: 0 auto 1rem }
+    body { font-family: sans-serif; padding: 2rem; background: #f9f9f9; }
+    nav { text-align: center; margin-bottom: 1rem; }
+    img.logo { max-width: 200px; display: block; margin: 0 auto 1rem; }
     .container {
       max-width: 600px; margin: auto; background: #fff; padding: 2rem;
       border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 2rem;
     }
-    label { font-weight: bold; margin-top: 1rem; display: block }
+    label { font-weight: bold; margin-top: 1rem; display: block; }
     select, input, button, pre {
       display: block; width: 100%; margin: .5rem 0; padding: .5rem;
       border: 1px solid #ddd; border-radius: 4px;
     }
-    button { background: #0066ff; color: #fff; border: none; cursor: pointer }
-    pre { background: #f0f0f0; white-space: pre-wrap; padding: 1rem; min-height: 4em }
+    button { background: #0066ff; color: #fff; border: none; cursor: pointer; }
+    pre { background: #f0f0f0; white-space: pre-wrap; padding: 1rem; min-height: 4em; }
   </style>
 </head>
 <body>
+
   <!-- Logo & Banner -->
   <img class="logo" src="logo.png" alt="CreatorCore AI Logo"/>
+  <img src="banner.png" alt="CreatorCore AI Banner"/>
 
   <!-- Nav -->
-  <nav><a href="index.html">Home</a> | <a href="pricing.html">Pricing</a></nav>
+  <nav><a href="index.html">Demo</a> | <a href="pricing.html">Pricing</a></nav>
 
   <!-- Dev Mode Plan Selector -->
   <div id="planSelector" class="container" style="display:none;">
@@ -40,7 +42,7 @@
     </select>
   </div>
 
-  <!-- HookBrain Module (only one!) -->
+  <!-- HookBrain Module -->
   <div class="container" id="hookbrainContainer">
     <h2>HookBrain</h2>
 
@@ -87,8 +89,88 @@
 
   <script>
   document.addEventListener("DOMContentLoaded", () => {
-    // load user & plan, dev-mode, rate-limits, model-picking, etc.
-    // (same script you already have…)
+    // 1) Load user & plan
+    const email = localStorage.getItem("cc_user") || "";
+    const storedPlan = localStorage.getItem("cc_plan") || "free";
+
+    // 2) Dev-mode detection
+    const DEV_IDS = ["elijermartinez222@gmail.com","mambertinez@gmail.com"];
+    const isDev = DEV_IDS.includes(email) || location.search.includes("dev=true");
+    if (isDev) {
+      document.getElementById("planSelector").style.display = "block";
+      document.getElementById("userPlan").value = storedPlan;
+    }
+
+    // 3) Helper to get effective plan
+    function getPlan() {
+      return isDev ? document.getElementById("userPlan").value : storedPlan;
+    }
+
+    // 4) Pick model per plan
+    function pickModel() {
+      const p = getPlan();
+      if (p === "creator") return "gpt-4-0314";
+      if (p === "pro"||p==="lifetime") return "gpt-4-turbo";
+      return "gpt-3.5-turbo";
+    }
+
+    // 5) Rate-limit free
+    function canCallHookBrain() {
+      if (getPlan() !== "free") return true;
+      const today = new Date().toISOString().slice(0,10);
+      const key = `hb_count_${today}`;
+      let count = +localStorage.getItem(key) || 0;
+      if (count >= 3) return false;
+      localStorage.setItem(key, count + 1);
+      return true;
+    }
+
+    // 6) POST helper
+    async function postData(url, body) {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type":"application/json",
+          "X-User-Id":    email,
+          "X-User-Plan":  getPlan()
+        },
+        body: JSON.stringify({ ...body, model: pickModel() })
+      });
+      const text = await res.text();
+      if (!res.ok) {
+        let err;
+        try { err = JSON.parse(text).error; }
+        catch { err = text; }
+        throw new Error(err || res.status);
+      }
+      return JSON.parse(text);
+    }
+
+    // 7) HookBrain handler
+    document.getElementById("generateCaptions").onclick = async () => {
+      if (!canCallHookBrain()) {
+        return alert("Free users can only generate 3 HookBrain responses per day. Upgrade for unlimited.");
+      }
+      const payload = {
+        niche:    document.getElementById("niche").value,
+        tone:     document.getElementById("tone").value,
+        goal:     document.getElementById("goal").value,
+        topic:    document.getElementById("topic").value,
+        postType: document.getElementById("postType").value
+      };
+      const out = document.getElementById("hookbrainOutput");
+      out.textContent = "Generating…";
+      try {
+        const d = await postData("https://creatorcore-api.vercel.app/api/hookbrain", payload);
+        out.textContent =
+          `**Captions:**\n${d.captions.join("\n\n")}\n\n— — —\n\n` +
+          `**Script:**\n${d.script}\n\n— — —\n\n` +
+          `**Idea:**\n${d.idea}\n\n— — —\n\n` +
+          `**SEO & Hashtags:**\n${d.seo.join(", ")}`;
+      } catch (e) {
+        out.textContent = "Error: " + e.message;
+      }
+    };
   });
   </script>
 </body>
