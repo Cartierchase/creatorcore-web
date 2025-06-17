@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>CreatorCore AI Demo</title>
-  <!-- Tally Popup -->
+  <!-- Tally Popup Embed -->
   <script async src="https://tally.so/widgets/embed.js"></script>
   <style>
     body { font-family: sans-serif; padding: 2rem; background: #f9f9f9; }
@@ -11,7 +11,8 @@
     img.logo { max-width: 200px; display: block; margin: 0 auto 1rem; }
     .container {
       max-width: 600px; margin: auto; background: #fff; padding: 2rem;
-      border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 2rem;
+      border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
     }
     label { font-weight: bold; margin-top: 1rem; display: block; }
     select, input, button, pre {
@@ -174,15 +175,22 @@
 
   <script>
   document.addEventListener("DOMContentLoaded", () => {
+    // load user & plan
     const email = localStorage.getItem("cc_user") || "";
     const plan  = localStorage.getItem("cc_plan") || "free";
+    window.currentUser = { email, plan };
+
+    // dev-mode toggle
     const DEV_IDS = ["dev@yourdomain.com"];
     const isDev = DEV_IDS.includes(email) || location.search.includes("dev=true");
     if (isDev) {
       document.getElementById("planSelector").style.display = "block";
       document.getElementById("userPlan").value = plan;
     }
-    function getPlan(){ return isDev ? document.getElementById("userPlan").value : plan }
+
+    function getPlan(){
+      return isDev ? document.getElementById("userPlan").value : plan;
+    }
 
     async function postData(url, body){
       const res = await fetch(url, {
@@ -195,10 +203,9 @@
         body: JSON.stringify(body)
       });
       const text = await res.text();
-      if (!res.ok) {
+      if (!res.ok){
         let msg;
-        try{ msg = JSON.parse(text).error }
-        catch{ msg = text }
+        try{ msg = JSON.parse(text).error; } catch { msg = text; }
         throw new Error(msg||res.status);
       }
       return JSON.parse(text);
@@ -227,81 +234,57 @@
       }
     };
 
-    // Updated CourseForge handler
+    // DEBUGGING CourseForge handler
     document.getElementById("generateCourse").onclick = async () => {
+      console.log("🔄 CourseForge clicked");
       const payload = {
         topic:    document.getElementById("cfTopic").value,
         audience: document.getElementById("cfAudience").value,
         format:   document.getElementById("cfFormat").value,
         level:    document.getElementById("cfLevel").value
       };
+      console.log("📤 Payload:", payload);
+
       const out = document.getElementById("courseOutput");
-      out.textContent = "Generating…";
+      out.textContent = "Loading…";
 
       try {
-        let { courseMarkdown } = await postData(
-          "https://creatorcore-api.vercel.app/api/courseforge",
-          payload
-        );
-
-        // unwrap nested JSON
-        let md = courseMarkdown.trim();
-        if (md.startsWith("{")) {
-          try {
-            const inner = JSON.parse(md);
-            if (inner.courseMarkdown) md = inner.courseMarkdown;
-          } catch {}
-        }
-
-        // parse & render
-        const lines = md.split("\n");
-        const sections = [];
-        let label = "", buffer = [];
-
-        function flush() {
-          if (!label) return;
-          const isList = buffer.some(l => l.startsWith("- "));
-          const body = isList
-            ? `<ul>${ buffer.map(l => `<li>${l.slice(2)}</li>`).join("") }</ul>`
-            : buffer.map(l => `<p>${l}</p>`).join("");
-          sections.push(`<div><strong>${label}</strong>${body}</div>`);
-          buffer = [];
-        }
-
-        lines.forEach(l => {
-          if (l.startsWith("## **Course Title:")) {
-            flush(); label = "Course Title:"; buffer.push(l.replace(/## \*\*Course Title:\*\*\s*/, ""));
-          }
-          else if (l.startsWith("### **Subtitle:")) {
-            flush(); label = "Subtitle:"; buffer.push(l.replace(/### \*\*Subtitle:\*\*\s*/, ""));
-          }
-          else if (l.startsWith("## Sales Page Blurb")) {
-            flush(); label = "Sales Page Blurb:";
-          }
-          else if (l.startsWith("## Modules & Lessons")) {
-            flush(); label = "Modules & Lessons:";
-          }
-          else if (l.startsWith("## Workbook Exercises per Lesson")) {
-            flush(); label = "Workbook Exercises per Lesson:";
-          }
-          else if (l.startsWith("## Downloadable Resources List")) {
-            flush(); label = "Downloadable Resources List:";
-          }
-          else if (l.startsWith("## CTA & Next Steps")) {
-            flush(); label = "CTA & Next Steps:";
-          }
-          else {
-            if (l.trim()) buffer.push(l.trim());
-          }
+        const res = await fetch("https://creatorcore-api.vercel.app/api/courseforge", {
+          method: "POST",
+          headers: {
+            "Content-Type":"application/json",
+            "X-User-Plan": getPlan(),
+            "X-User-Id":   email
+          },
+          body: JSON.stringify(payload)
         });
-        flush();
-        out.innerHTML = sections.join("<hr/>");
-      } catch (e) {
-        out.textContent = "Error: " + e.message;
+        console.log("📥 Status:", res.status);
+        const text = await res.text();
+        console.log("📝 Raw text:", text);
+
+        if (!res.ok) throw new Error(`HTTP ${res.status}: ${text}`);
+
+        // show raw
+        out.textContent = text;
+
+        const json = JSON.parse(text);
+        console.log("✅ JSON:", json);
+
+        let md = json.courseMarkdown;
+        if (typeof md==="string" && md.trim().startsWith("{")) {
+          const inner = JSON.parse(md);
+          md = inner.courseMarkdown;
+          console.log("🔓 Unwrapped:", md);
+        }
+
+        out.textContent = md;
+      } catch (err) {
+        console.error("❌ Error:", err);
+        out.textContent = "Error: " + err.message;
       }
     };
+
   });
   </script>
-
 </body>
 </html>
