@@ -3,11 +3,8 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>CreatorCore AI</title>
-
-  <!-- Tally Popup Embed Script -->
+  <title>CreatorCore AI Demo</title>
   <script async src="https://tally.so/widgets/embed.js"></script>
-
   <style>
     body{font-family:sans-serif;padding:2rem;background:#f9f9f9}
     nav{text-align:center;margin-bottom:1rem}
@@ -17,22 +14,23 @@
     input,select,button,iframe{display:block;width:100%;margin:.5rem 0;
       padding:.5rem;border:1px solid #ddd;border-radius:4px}
     button{background:#0066ff;color:#fff;border:none;cursor:pointer}
-    pre{background:#f0f0f0;padding:1rem;border-radius:4px;white-space:pre-wrap}
+    pre{background:#f0f0f0;padding:1rem;border-radius:4px;white-space:pre-wrap;min-height:3em}
     #planSelector{margin-bottom:1rem;display:none}
   </style>
 </head>
 <body>
 
   <!-- Logo & Banner -->
-  <img class="logo" src="/logo.png" alt="CreatorCore AI Logo"/>
+  <img class="logo" src="logo.png" alt="CreatorCore AI Logo"/>
+  <img src="banner.png" alt="CreatorCore AI Banner"/>
 
   <!-- Nav -->
   <nav>
-    <a href="index.html">Home</a> |
+    <a href="index.html">Demo</a> |
     <a href="pricing.html">Pricing</a>
   </nav>
 
-  <!-- Join Waitlist (Tally Popup) -->
+  <!-- Join Waitlist -->
   <div style="text-align:center; margin-bottom:2rem;">
     <button
       data-tally-open="3xEVK9"
@@ -66,8 +64,11 @@
     <input id="topic"    placeholder="Topic (e.g. Consistency)"/>
     <select id="postType">
       <option disabled selected>Post Type</option>
-      <option>Instagram</option><option>TikTok</option><option>Reels</option>
-      <option>YouTube</option><option>Shorts</option>
+      <option>Instagram</option>
+      <option>TikTok</option>
+      <option>Reels</option>
+      <option>YouTube</option>
+      <option>Shorts</option>
     </select>
     <button id="generateCaptions">Generate Content</button>
     <pre id="captionsOutput">Captions…</pre>
@@ -95,15 +96,16 @@
     <button onclick="location='pricing.html'">Upgrade or View Plans</button>
   </div>
 
+  <!-- Core Script -->
   <script>
-    // 1) Load stored user & plan from activation
+    // 1) Load stored user & plan
     const storedEmail = localStorage.getItem("cc_user") || "";
     const storedPlan  = localStorage.getItem("cc_plan") || "free";
     window.currentUser = { email: storedEmail, plan: storedPlan };
 
     // 2) Dev-mode detection
-    const devList = (process.env.DEV_USER_IDS || "").split(",");
-    const isDev = devList.includes(storedEmail) || location.search.includes("dev=true");
+    const devList = (process.env.DEV_USER_IDS||"").split(",");
+    const isDev   = devList.includes(storedEmail) || location.search.includes("dev=true");
     if (isDev) {
       document.getElementById("planSelector").style.display = "block";
       document.getElementById("userPlan").value = storedPlan;
@@ -128,36 +130,45 @@
         headers,
         body:    JSON.stringify(body)
       });
+      if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
       return res.json();
     }
 
-    // HookBrain call
-    document.getElementById("generateCaptions").onclick = async () => {
-      const data = {
-        niche:    document.getElementById("niche").value,
-        tone:     document.getElementById("tone").value,
-        goal:     document.getElementById("goal").value,
-        topic:    document.getElementById("topic").value,
-        postType: document.getElementById("postType").value
-      };
-      const d = await postData("https://creatorcore-api.vercel.app/api/hookbrain", data);
-      document.getElementById("captionsOutput").textContent = d.captions?.join("\n\n") || d.error;
-      document.getElementById("scriptOutput").textContent   = d.script                    || d.error;
-      document.getElementById("ideaOutput").textContent     = d.idea                      || d.error;
-      document.getElementById("seoOutput").textContent      = (d.seo || []).join(", ")    || d.error;
-    };
+    // HookBrain
+    document.getElementById("generateCaptions").addEventListener("click", async () => {
+      try {
+        const payload = {
+          niche:    document.getElementById("niche").value,
+          tone:     document.getElementById("tone").value,
+          goal:     document.getElementById("goal").value,
+          topic:    document.getElementById("topic").value,
+          postType: document.getElementById("postType").value
+        };
+        const d = await postData("https://creatorcore-api.vercel.app/api/hookbrain", payload);
+        captionsOutput.textContent = (d.captions||[]).join("\n\n");
+        scriptOutput.textContent   = d.script   || "";
+        ideaOutput.textContent     = d.idea     || "";
+        seoOutput.textContent      = (d.seo||[]).join(", ");
+      } catch (err) {
+        captionsOutput.textContent = err.message;
+      }
+    });
 
-    // CourseForge call
-    document.getElementById("generateCourse").onclick = async () => {
-      const payload = {
-        topic:    document.getElementById("cfTopic").value,
-        audience: document.getElementById("cfAudience").value,
-        format:   document.getElementById("cfFormat").value,
-        level:    document.getElementById("cfLevel").value
-      };
-      const d = await postData("https://creatorcore-api.vercel.app/api/courseforge", payload);
-      document.getElementById("courseOutput").textContent = d.course || d.error;
-    };
+    // CourseForge
+    document.getElementById("generateCourse").addEventListener("click", async () => {
+      try {
+        const payload = {
+          topic:    document.getElementById("cfTopic").value,
+          audience: document.getElementById("cfAudience").value,
+          format:   document.getElementById("cfFormat").value,
+          level:    document.getElementById("cfLevel").value
+        };
+        const d = await postData("https://creatorcore-api.vercel.app/api/courseforge", payload);
+        courseOutput.textContent = d.course || "";
+      } catch (err) {
+        courseOutput.textContent = err.message;
+      }
+    });
   </script>
 </body>
 </html>
