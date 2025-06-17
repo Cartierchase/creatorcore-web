@@ -4,6 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>CreatorCore AI</title>
+  <!-- Tally Popup Embed -->
   <script async src="https://tally.so/widgets/embed.js"></script>
   <style>
     body { font-family: sans-serif; padding: 2rem; background: #f9f9f9; }
@@ -32,7 +33,7 @@
 
   <!-- Dev Mode Plan Selector -->
   <div id="planSelector" class="container" style="display:none;">
-    <label for="userPlan">Your Plan (Dev Mode)</label>
+    <label for="userPlan">DEV MODE: Override Plan</label>
     <select id="userPlan">
       <option value="free">Free</option>
       <option value="creator">Creator</option>
@@ -44,6 +45,7 @@
   <!-- HookBrain Module -->
   <div class="container">
     <h2>HookBrain</h2>
+
     <label for="niche">Top Niches</label>
     <select id="niche">
       <option disabled selected>Choose a niche…</option>
@@ -52,6 +54,7 @@
       <option>Lifestyle & Wellness</option><option>Parenting & Family</option><option>Fashion & Style</option>
       <option>Gaming & Esports</option>
     </select>
+
     <label for="tone">Top Tones</label>
     <select id="tone">
       <option disabled selected>Choose a tone…</option>
@@ -59,6 +62,7 @@
       <option>Authentic</option><option>Empathetic</option><option>Edgy</option>
       <option>Educational</option><option>Conversational</option><option>Confident</option><option>Upbeat</option>
     </select>
+
     <label for="goal">Top Goals</label>
     <select id="goal">
       <option disabled selected>Choose a goal…</option>
@@ -67,8 +71,10 @@
       <option>Build Community</option><option>Promote Event</option><option>Educate Audience</option>
       <option>Gather Feedback</option>
     </select>
+
     <label for="topic">Your Custom Topic</label>
     <input id="topic" type="text" placeholder="Enter your own topic…"/>
+
     <label for="postType">Top Post Types</label>
     <select id="postType">
       <option disabled selected>Select post type…</option>
@@ -76,89 +82,80 @@
       <option>TikTok Video</option><option>YouTube Short</option><option>YouTube Long-Form</option>
       <option>Facebook Post</option><option>LinkedIn Article</option><option>Twitter Thread</option>
     </select>
+
     <button id="generateCaptions">Generate HookBrain Content</button>
     <pre id="hookbrainOutput">Your HookBrain output…</pre>
   </div>
 
   <script>
   document.addEventListener("DOMContentLoaded", () => {
-    // 1) Load user & plan
+    // 1) Load stored user & plan
     const email = localStorage.getItem("cc_user") || "";
-    const plan  = localStorage.getItem("cc_plan") || "free";
-    window.currentUser = { email, plan };
+    const storedPlan = localStorage.getItem("cc_plan") || "free";
 
-    // 2) Dev-mode toggle
-    const DEV_IDS = ["dev@yourdomain.com"];
-    const isDev = DEV_IDS.includes(elijermartinez222@gmail.com, mambertinez@gmail.com) || location.search.includes("dev=true");
+    // 2) Detect dev users
+    const DEV_IDS = (process.env.DEV_USER_IDS||"").split(",");
+    const isDev = DEV_IDS.includes(email) || location.search.includes("dev=true");
+
+    // 3) Show plan selector in dev mode
     if (isDev) {
-      document.getElementById("planSelector").style.display = "block";
-      document.getElementById("userPlan").value = plan;
+      const planSel = document.getElementById("planSelector");
+      planSel.style.display = "block";
+      document.getElementById("userPlan").value = "lifetime";
     }
-    function getPlan() { return isDev ? document.getElementById("userPlan").value : plan; }
 
-    // 3) Model selection by plan
+    // 4) Determine effective plan
+    function getPlan() {
+      if (isDev) return document.getElementById("userPlan").value;
+      return storedPlan;
+    }
+
+    // 5) Pick model by plan
     function pickModel() {
-      const p = getPlan();
-      if (p === "creator") return "gpt-4-0314";
-      if (p === "pro" || p === "lifetime") return "gpt-4-turbo";
-      return "gpt-3.5-turbo";  // free
+      const plan = getPlan();
+      if (plan === "creator") return "gpt-4-0314";
+      if (plan === "pro" || plan === "lifetime") return "gpt-4-turbo";
+      return "gpt-3.5-turbo";
     }
 
-    // 4) Usage counters
+    // 6) Rate limits for free/creator
     function canCallHookBrain() {
-      const p = getPlan();
-      if (p !== "free") return true;
+      const plan = getPlan();
+      if (plan !== "free") return true;
       const today = new Date().toISOString().slice(0,10);
       const key = `hb_count_${today}`;
-      let count = parseInt(localStorage.getItem(key) || "0",10);
+      let count = +localStorage.getItem(key) || 0;
       if (count >= 3) return false;
-      localStorage.setItem(key, ++count);
+      localStorage.setItem(key, count+1);
       return true;
     }
 
-    function canCallCourseForge() {
-      const p = getPlan();
-      if (p !== "free" && p !== "creator") return true;
-      const month = new Date().toISOString().slice(0,7);
-      const key = `cf_count_${month}`;
-      let count = parseInt(localStorage.getItem(key) || "0",10);
-      const limit = (p==="free")?1:3;
-      if (count >= limit) return false;
-      localStorage.setItem(key, ++count);
-      return true;
-    }
-
-    // 5) POST helper with model
+    // 7) POST helper
     async function postData(url, body) {
       const res = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type":"application/json",
-          "X-User-Plan": getPlan(),
-          "X-User-Id":   email
+          "X-User-Id": email,
+          "X-User-Plan": getPlan()
         },
         body: JSON.stringify({ ...body, model: pickModel() })
       });
       const text = await res.text();
-      if (!res.ok) {
-        let err;
-        try { err = JSON.parse(text).error; }
-        catch { err = text; }
-        throw new Error(err || res.status);
-      }
+      if (!res.ok) throw new Error(text);
       return JSON.parse(text);
     }
 
-    // 6) HookBrain handler with limit
+    // 8) HookBrain handler
     document.getElementById("generateCaptions").onclick = async () => {
       if (!canCallHookBrain()) {
-        return alert("Free plan allows only 3 captions/day. Upgrade to continue.");
+        return alert("Free users are limited to 3 HookBrain calls per day. Upgrade for unlimited access.");
       }
       const payload = {
-        niche:    document.getElementById("niche").value,
-        tone:     document.getElementById("tone").value,
-        goal:     document.getElementById("goal").value,
-        topic:    document.getElementById("topic").value,
+        niche: document.getElementById("niche").value,
+        tone: document.getElementById("tone").value,
+        goal: document.getElementById("goal").value,
+        topic: document.getElementById("topic").value,
         postType: document.getElementById("postType").value
       };
       const out = document.getElementById("hookbrainOutput");
@@ -174,9 +171,6 @@
         out.textContent = "Error: " + e.message;
       }
     };
-
-    // Note: CourseForge removed per last request
-
   });
   </script>
 </body>
