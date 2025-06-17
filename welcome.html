@@ -1,74 +1,141 @@
-<script>
-  const apiUrl   = "https://creatorcore-api.vercel.app/api/getPlan";
-  const emailEl  = document.getElementById("email");
-  const btn      = document.getElementById("login");
-  const errorDiv = document.getElementById("error");
-
-  // 1) Define your dev emails
-  const DEV_IDS = [
-    "elijermartinez222@gmail.com",
-    "mambertinez@gmail.com"
-  ];
-
-  // 2) Utility to check if this user is a dev
-  function isDevUser(email) {
-    return DEV_IDS.includes(email) || location.search.includes("dev=true");
-  }
-
-  // 3) Fetch the real plan only if not a dev
-  async function fetchPlan(email) {
-    const resp = await fetch(apiUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email })
-    });
-    if (!resp.ok) {
-      const text = await resp.text();
-      console.error("getPlan error detail:", text);
-      throw new Error("We couldn't verify your plan right now. Please try again later.");
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Welcome to CreatorCore AI</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f9f9f9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
     }
-    const { plan } = await resp.json();
-    return plan;
-  }
+    .box {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      max-width: 360px;
+      width: 100%;
+    }
+    label {
+      display: block;
+      margin-bottom: .5rem;
+      font-weight: bold;
+    }
+    input, button {
+      width: 100%;
+      padding: .75rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+    button {
+      background: #0066ff;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+    button:disabled {
+      background: #888;
+      cursor: not-allowed;
+    }
+    .error {
+      color: #c00;
+      margin-bottom: 1rem;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>Activate Your Account</h1>
+    <p>Enter the email you used to purchase:</p>
 
-  btn.addEventListener("click", async () => {
-    errorDiv.style.display = "none";
-    const email = emailEl.value.trim().toLowerCase();
-    if (!email) {
-      errorDiv.textContent = "Please enter your email.";
-      errorDiv.style.display = "block";
-      return;
+    <label for="emailInput">Email Address</label>
+    <input id="emailInput" type="email" placeholder="you@example.com"/>
+
+    <div id="errorMsg" class="error"></div>
+    <button id="continueBtn">Continue</button>
+  </div>
+
+  <script>
+    // Configuration
+    const apiUrl = "https://creatorcore-api.vercel.app/api/getPlan";
+    const DEV_IDS = [
+      "elijermartinez222@gmail.com",
+      "mambertinez@gmail.com"
+    ];
+
+    // Helpers
+    function isDevUser(email) {
+      return DEV_IDS.includes(email) || location.search.includes("dev=true");
     }
 
-    btn.disabled    = true;
-    btn.textContent = "Verifying…";
+    async function fetchPlan(email) {
+      const resp = await fetch(apiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+      });
+      if (!resp.ok) {
+        const text = await resp.text();
+        console.error("getPlan error detail:", text);
+        throw new Error("We couldn't verify your plan. Please try again later.");
+      }
+      const { plan } = await resp.json();
+      return plan;
+    }
 
-    try {
-      let plan;
-      if (isDevUser(email)) {
-        // Devs automatically get lifetime
-        plan = "lifetime";
-      } else {
-        plan = await fetchPlan(email);
-        if (!plan || plan === "free") {
-          errorDiv.textContent = "No active paid plan found for this email.";
-          errorDiv.style.display = "block";
-          btn.disabled    = false;
-          btn.textContent = "Continue";
-          return;
-        }
+    // DOM Elements
+    const emailInput  = document.getElementById("emailInput");
+    const continueBtn = document.getElementById("continueBtn");
+    const errorDiv    = document.getElementById("errorMsg");
+
+    continueBtn.addEventListener("click", async () => {
+      errorDiv.style.display = "none";
+      const email = emailInput.value.trim().toLowerCase();
+      if (!email) {
+        errorDiv.textContent = "Please enter your email.";
+        errorDiv.style.display = "block";
+        return;
       }
 
-      localStorage.setItem("cc_user", email);
-      localStorage.setItem("cc_plan", plan);
+      continueBtn.disabled    = true;
+      continueBtn.textContent = "Verifying…";
 
-      window.location.href = "index.html";
-    } catch (err) {
-      errorDiv.textContent = err.message;
-      errorDiv.style.display = "block";
-      console.error("Welcome page error:", err);
-      btn.disabled    = false;
-      btn.textContent = "Continue";
-    }
-  });
-</script>
+      try {
+        let plan;
+        if (isDevUser(email)) {
+          plan = "lifetime";
+        } else {
+          plan = await fetchPlan(email);
+          if (!plan || plan === "free") {
+            errorDiv.textContent = "No active paid plan found for this email.";
+            errorDiv.style.display = "block";
+            continueBtn.disabled    = false;
+            continueBtn.textContent = "Continue";
+            return;
+          }
+        }
+
+        localStorage.setItem("cc_user", email);
+        localStorage.setItem("cc_plan", plan);
+        window.location.href = "index.html";
+
+      } catch (err) {
+        errorDiv.textContent = err.message;
+        errorDiv.style.display = "block";
+        console.error("Welcome page error:", err);
+        continueBtn.disabled    = false;
+        continueBtn.textContent = "Continue";
+      }
+    });
+  </script>
+</body>
+</html>
