@@ -3,165 +3,58 @@
 <head>
   <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>CreatorCore AI Demo</title>
-  <!-- Tally Popup -->
   <script async src="https://tally.so/widgets/embed.js"></script>
   <style>
-    body{font-family:sans-serif;padding:2rem;background:#f9f9f9}
-    nav{text-align:center;margin-bottom:1rem}
-    img.logo{max-width:200px;display:block;margin:0 auto 1rem;}
-    .container{max-width:600px;margin:auto;background:#fff;padding:2rem;
-      border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.1);margin-bottom:2rem}
-    input,select,button,pre{display:block;width:100%;margin:.5rem 0;
-      padding:.5rem;border:1px solid #ddd;border-radius:4px}
-    button{background:#0066ff;color:#fff;border:none;cursor:pointer}
-    pre{background:#f0f0f0;white-space:pre-wrap;min-height:3em}
-    #planSelector{display:none;margin-bottom:1rem}
+    /* ... your existing styles ... */
   </style>
 </head>
 <body>
-  <!-- Logo & Banner -->
-  <img class="logo" src="logo.png" alt="CreatorCore AI Logo"/>
-
-  <!-- Nav -->
-  <nav>
-    <a href="index.html">Demo</a> | <a href="pricing.html">Pricing</a>
-  </nav>
-
-  <!-- Waitlist -->
-  <div class="container" style="text-align:center">
-    <button
-      data-tally-open="3xEVK9"
-      data-tally-layout="modal"
-      data-tally-emoji-text="👋"
-      data-tally-emoji-animation="wave"
-      style="font-size:1rem;padding:.75rem 1.5rem;"
-    >👉 Join the Waitlist</button>
-  </div>
-
-  <!-- Dev Mode Selector -->
-  <div id="planSelector" class="container">
-    <label><strong>DEV MODE: Your Plan</strong></label>
-    <select id="userPlan">
-      <option value="free">Free</option>
-      <option value="creator">Creator</option>
-      <option value="pro">Pro</option>
-      <option value="lifetime">Lifetime</option>
-    </select>
-  </div>
-
-  <!-- Hook Brain -->
-  <div class="container">
-    <h2>Hook Brain (Captions + Script + Idea + SEO & Hashtags)</h2>
-    <input id="niche" placeholder="Niche (e.g. Fitness)"/>
-    <input id="tone" placeholder="Tone (e.g. Inspirational)"/>
-    <input id="goal" placeholder="Goal (e.g. Engagement)"/>
-    <input id="topic" placeholder="Topic (e.g. Consistency)"/>
-    <select id="postType">
-      <option disabled selected>Post Type</option>
-      <option>Instagram</option><option>TikTok</option><option>Reels</option>
-      <option>YouTube</option><option>Shorts</option>
-    </select>
-    <button id="generateCaptions">Generate Content</button>
-    <pre id="captionsOutput"></pre>
-    <pre id="scriptOutput"></pre>
-    <pre id="ideaOutput"></pre>
-    <pre id="seoOutput"></pre>
-  </div>
-
-  <!-- Course Forge -->
-  <div class="container">
-    <h2>Course Forge (Course Builder)</h2>
-    <input id="cfTopic" placeholder="Course Topic (e.g. Budgeting)"/>
-    <input id="cfAudience" placeholder="Audience (e.g. Busy moms)"/>
-    <select id="cfFormat">
-      <option disabled selected>Format</option>
-      <option>video</option><option>written</option><option>hybrid</option>
-    </select>
-    <select id="cfLevel">
-      <option disabled selected>Skill Level</option>
-      <option>beginner</option><option>intermediate</option><option>expert</option>
-    </select>
-    <button id="generateCourse">Generate Course</button>
-    <pre id="courseOutput"></pre>
-  </div>
-
-  <!-- Core Script -->
+  <!-- Injected Dev List (Vercel will replace __DEV__ with process.env.DEV_USER_IDS) -->
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      // Load stored user & plan
-      const storedEmail = localStorage.getItem("cc_user") || "";
-      const storedPlan  = localStorage.getItem("cc_plan") || "free";
-      window.currentUser = { email: storedEmail, plan: storedPlan };
+    // Vercel will inline the actual value for you here
+    const DEV_USER_IDS = "__DEV__".split(",");
+  </script>
 
-      // Dev-mode detection
-      const devList = (process.env.DEV_USER_IDS||"").split(",");
-      const isDev   = devList.includes(storedEmail) || location.search.includes("dev=true");
-      if (isDev) {
-        document.getElementById("planSelector").style.display = "block";
-        document.getElementById("userPlan").value = storedPlan;
-      }
+  <!-- Logo, Nav, Waitlist, etc. -->
 
-      // Helper to get plan
-      function getPlan() {
-        return isDev
-          ? document.getElementById("userPlan").value
-          : window.currentUser.plan;
-      }
+  <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const storedEmail = localStorage.getItem("cc_user") || "";
+    const storedPlan  = localStorage.getItem("cc_plan") || "free";
+    window.currentUser = { email: storedEmail, plan: storedPlan };
 
-      // POST helper with logging
-      async function postData(url, body) {
-        console.log("POST", url, body, "plan:", getPlan());
-        const headers = {
-          "Content-Type": "application/json",
-          "X-User-Plan":  getPlan(),
-          "X-User-Id":    window.currentUser.email
-        };
-        const res = await fetch(url, { method: "POST", headers, body: JSON.stringify(body) });
-        console.log("Status", res.status);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        console.log("Response", data);
-        return data;
-      }
+    // Dev-mode detection using our injected global
+    const isDev = DEV_USER_IDS.includes(storedEmail) || location.search.includes("dev=true");
+    if (isDev) {
+      document.getElementById("planSelector").style.display = "block";
+      document.getElementById("userPlan").value = storedPlan;
+    }
 
-      // HookBrain
-      document.getElementById("generateCaptions").addEventListener("click", async () => {
-        const payload = {
-          niche:    document.getElementById("niche").value,
-          tone:     document.getElementById("tone").value,
-          goal:     document.getElementById("goal").value,
-          topic:    document.getElementById("topic").value,
-          postType: document.getElementById("postType").value
-        };
-        try {
-          const d = await postData("https://creatorcore-api.vercel.app/api/hookbrain", payload);
-          document.getElementById("captionsOutput").textContent = (d.captions||[]).join("\n\n");
-          document.getElementById("scriptOutput").textContent   = d.script   || "";
-          document.getElementById("ideaOutput").textContent     = d.idea     || "";
-          document.getElementById("seoOutput").textContent      = (d.seo||[]).join(", ");
-        } catch (err) {
-          console.error(err);
-          document.getElementById("captionsOutput").textContent = "Error: " + err.message;
-        }
-      });
+    function getPlan() {
+      return isDev ? document.getElementById("userPlan").value : window.currentUser.plan;
+    }
 
-      // CourseForge
-      document.getElementById("generateCourse").addEventListener("click", async () => {
-        const payload = {
-          topic:    document.getElementById("cfTopic").value,
-          audience: document.getElementById("cfAudience").value,
-          format:   document.getElementById("cfFormat").value,
-          level:    document.getElementById("cfLevel").value
-        };
-        try {
-          const d = await postData("https://creatorcore-api.vercel.app/api/courseforge", payload);
-          document.getElementById("courseOutput").textContent = d.course || "";
-        } catch (err) {
-          console.error(err);
-          document.getElementById("courseOutput").textContent = "Error: " + err.message;
-        }
-      });
+    async function postData(url, body) {
+      const headers = {
+        "Content-Type": "application/json",
+        "X-User-Plan":  getPlan(),
+        "X-User-Id":    window.currentUser.email
+      };
+      const res = await fetch(url, { method: "POST", headers, body: JSON.stringify(body) });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    }
+
+    // HookBrain handler
+    document.getElementById("generateCaptions").addEventListener("click", async () => {
+      /* ... same as before ... */
     });
+
+    // CourseForge handler
+    document.getElementById("generateCourse").addEventListener("click", async () => {
+      /* ... same as before ... */
+    });
+  });
   </script>
 </body>
 </html>
