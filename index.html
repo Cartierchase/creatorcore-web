@@ -3,92 +3,61 @@
 <head>
   <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>CreatorCore AI Demo</title>
-  <script async src="https://tally.so/widgets/embed.js"></script>
   <style>
-    /* your existing styles */
+    body{font-family:sans-serif;padding:2rem;background:#f9f9f9}
+    .container{max-width:600px;margin:auto;background:#fff;padding:2rem;border-radius:8px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.1);margin-bottom:2rem}
+    input,select,button,pre{display:block;width:100%;margin:.5rem 0;padding:.5rem;
+      border:1px solid #ddd;border-radius:4px}
+    button{background:#0066ff;color:#fff;border:none;cursor:pointer}
+    pre{background:#f0f0f0;white-space:pre-wrap;min-height:2em}
   </style>
 </head>
 <body>
-  <!-- Hard-coded Dev List -->
+  <h1 style="text-align:center">CreatorCore AI Demo</h1>
+  <div class="container">
+    <h2>Hook Brain</h2>
+    <input id="niche" placeholder="Niche"/>
+    <input id="tone"  placeholder="Tone"/>
+    <input id="goal"  placeholder="Goal"/>
+    <input id="topic" placeholder="Topic"/>
+    <button id="genCap">Generate Captions</button>
+    <pre id="outCap"></pre>
+  </div>
+  <div class="container">
+    <h2>Course Forge</h2>
+    <input id="ctopic" placeholder="Course Topic"/>
+    <input id="caud"   placeholder="Audience"/>
+    <button id="genCourse">Generate Course</button>
+    <pre id="outCourse"></pre>
+  </div>
   <script>
-    const DEV_USER_IDS = [
-      "dev1@yourdomain.com",
-      "dev2@yourdomain.com"
-    ];
-  </script>
-
-  <!-- Logo, Nav, Waitlist, Plan Selector, Hook Brain, Course Forge... -->
-  <!-- (rest of your HTML unchanged) -->
-
-  <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const storedEmail = localStorage.getItem("cc_user") || "";
-    const storedPlan  = localStorage.getItem("cc_plan") || "free";
-    window.currentUser = { email: storedEmail, plan: storedPlan };
-
-    const isDev = DEV_USER_IDS.includes(storedEmail) || location.search.includes("dev=true");
-    if (isDev) {
-      document.getElementById("planSelector").style.display = "block";
-      document.getElementById("userPlan").value = storedPlan;
+    async function postData(url,body){
+      const res = await fetch(url, {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify(body)
+      });
+      return res.json();
     }
-
-    function getPlan() {
-      return isDev
-        ? document.getElementById("userPlan").value
-        : window.currentUser.plan;
-    }
-
-    async function postData(url, body) {
-      console.log("POST", url, body, "plan:", getPlan());
-      const headers = {
-        "Content-Type": "application/json",
-        "X-User-Plan":  getPlan(),
-        "X-User-Id":    window.currentUser.email
+    document.getElementById("genCap").onclick = async ()=>{
+      const data = {
+        niche:document.getElementById("niche").value,
+        tone:document.getElementById("tone").value,
+        goal:document.getElementById("goal").value,
+        topic:document.getElementById("topic").value
       };
-      const res = await fetch(url, { method: "POST", headers, body: JSON.stringify(body) });
-      console.log("Status", res.status);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      console.log("Response", data);
-      return data;
-    }
-
-    document.getElementById("generateCaptions").addEventListener("click", async () => {
-      try {
-        const payload = {
-          niche:    document.getElementById("niche").value,
-          tone:     document.getElementById("tone").value,
-          goal:     document.getElementById("goal").value,
-          topic:    document.getElementById("topic").value,
-          postType: document.getElementById("postType").value
-        };
-        const d = await postData("https://creatorcore-api.vercel.app/api/hookbrain", payload);
-        document.getElementById("captionsOutput").textContent = (d.captions||[]).join("\n\n");
-        document.getElementById("scriptOutput").textContent   = d.script   || "";
-        document.getElementById("ideaOutput").textContent     = d.idea     || "";
-        document.getElementById("seoOutput").textContent      = (d.seo||[]).join(", ");
-      } catch (err) {
-        console.error(err);
-        document.getElementById("captionsOutput").textContent = "Error: " + err.message;
-      }
-    });
-
-    document.getElementById("generateCourse").addEventListener("click", async () => {
-      try {
-        const payload = {
-          topic:    document.getElementById("cfTopic").value,
-          audience: document.getElementById("cfAudience").value,
-          format:   document.getElementById("cfFormat").value,
-          level:    document.getElementById("cfLevel").value
-        };
-        const d = await postData("https://creatorcore-api.vercel.app/api/courseforge", payload);
-        document.getElementById("courseOutput").textContent = d.course || "";
-      } catch (err) {
-        console.error(err);
-        document.getElementById("courseOutput").textContent = "Error: " + err.message;
-      }
-    });
-  });
+      const d = await postData("https://creatorcore-api.vercel.app/api/hookbrain",data);
+      document.getElementById("outCap").textContent = JSON.stringify(d,null,2);
+    };
+    document.getElementById("genCourse").onclick = async ()=>{
+      const data = {
+        topic:document.getElementById("ctopic").value,
+        audience:document.getElementById("caud").value
+      };
+      const d = await postData("https://creatorcore-api.vercel.app/api/courseforge",data);
+      document.getElementById("outCourse").textContent = JSON.stringify(d,null,2);
+    };
   </script>
 </body>
 </html>
