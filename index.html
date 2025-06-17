@@ -12,19 +12,16 @@
     img.logo { max-width: 200px; display: block; margin: 0 auto 1rem; }
     .container {
       max-width: 600px; margin: auto; background: #fff; padding: 2rem;
-      border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 2rem;
+      border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
     }
     label { font-weight: bold; margin-top: 1rem; display: block; }
-    select, input, button, .output {
+    select, input, button, pre {
       display: block; width: 100%; margin: .5rem 0; padding: .5rem;
       border: 1px solid #ddd; border-radius: 4px;
     }
     button { background: #0066ff; color: #fff; border: none; cursor: pointer; }
-    .output { background: #f0f0f0; white-space: pre-wrap; }
-    .section { margin-bottom: 1.5rem; }
-    .section h3 { margin-bottom: .5rem; }
-    .section h4 { margin: .75rem 0 .25rem; }
-    .section ul { padding-left: 1.2rem; }
+    pre { background: #f0f0f0; white-space: pre-wrap; padding: 1rem; min-height: 4em; }
   </style>
 </head>
 <body>
@@ -50,29 +47,49 @@
   <!-- HookBrain Module -->
   <div class="container">
     <h2>HookBrain</h2>
+
     <label for="niche">Top Niches</label>
     <select id="niche">
       <option disabled selected>Choose a niche…</option>
-      <option>Fitness & Health</option><option>Beauty & Skincare</option><option>Travel & Adventure</option>
-      <option>Food & Cooking</option><option>Personal Finance</option><option>Tech & Gadgets</option>
-      <option>Lifestyle & Wellness</option><option>Parenting & Family</option><option>Fashion & Style</option>
+      <option>Fitness & Health</option>
+      <option>Beauty & Skincare</option>
+      <option>Travel & Adventure</option>
+      <option>Food & Cooking</option>
+      <option>Personal Finance</option>
+      <option>Tech & Gadgets</option>
+      <option>Lifestyle & Wellness</option>
+      <option>Parenting & Family</option>
+      <option>Fashion & Style</option>
       <option>Gaming & Esports</option>
     </select>
 
     <label for="tone">Top Tones</label>
     <select id="tone">
       <option disabled selected>Choose a tone…</option>
-      <option>Inspirational</option><option>Motivational</option><option>Humorous</option>
-      <option>Authentic</option><option>Empathetic</option><option>Edgy</option>
-      <option>Educational</option><option>Conversational</option><option>Confident</option><option>Upbeat</option>
+      <option>Inspirational</option>
+      <option>Motivational</option>
+      <option>Humorous</option>
+      <option>Authentic</option>
+      <option>Empathetic</option>
+      <option>Edgy</option>
+      <option>Educational</option>
+      <option>Conversational</option>
+      <option>Confident</option>
+      <option>Upbeat</option>
     </select>
 
     <label for="goal">Top Goals</label>
     <select id="goal">
       <option disabled selected>Choose a goal…</option>
-      <option>Increase Engagement</option><option>Gain Followers</option><option>Drive Clicks</option>
-      <option>Grow Brand Awareness</option><option>Generate Leads</option><option>Boost Sales</option>
-      <option>Build Community</option><option>Promote Event</option><option>Educate Audience</option>
+      <option>Increase Engagement</option>
+      <option>Gain Followers</option>
+      <option>Drive Clicks</option>
+      <option>Grow Brand Awareness</option>
+      <option>Generate Leads</option>
+      <option>Boost Sales</option>
+      <option>Build Community</option>
+      <option>Promote Event</option>
+      <option>Educate Audience</option>
       <option>Gather Feedback</option>
     </select>
 
@@ -82,60 +99,26 @@
     <label for="postType">Top Post Types</label>
     <select id="postType">
       <option disabled selected>Select post type…</option>
-      <option>Instagram Feed</option><option>Instagram Story</option><option>Instagram Reel</option>
-      <option>TikTok Video</option><option>YouTube Short</option><option>YouTube Long-Form</option>
-      <option>Facebook Post</option><option>LinkedIn Article</option><option>Twitter Thread</option>
+      <option>Instagram Feed</option>
+      <option>Instagram Story</option>
+      <option>Instagram Reel</option>
+      <option>TikTok Video</option>
+      <option>YouTube Short</option>
+      <option>YouTube Long-Form</option>
+      <option>Facebook Post</option>
+      <option>LinkedIn Article</option>
+      <option>Twitter Thread</option>
     </select>
 
     <button id="generateCaptions">Generate HookBrain Content</button>
-    <pre id="hookbrainOutput" class="output">Your HookBrain output…</pre>
-  </div>
-
-  <!-- CourseForge Module -->
-  <div class="container">
-    <h2>CourseForge (Life Coaching / Mastercourse)</h2>
-    <label for="cfTopic">Top Mastercourse Topics</label>
-    <select id="cfTopic">
-      <option disabled selected>Select a topic…</option>
-      <option>Mindset Mastery</option><option>Peak Productivity</option><option>Emotional Intelligence</option>
-      <option>Leadership & Influence</option><option>Work-Life Balance</option><option>Financial Freedom</option>
-      <option>Confidence & Self-Esteem</option><option>Career Acceleration</option><option>Relationship Mastery</option>
-      <option>Health & Wellness Transformation</option>
-    </select>
-
-    <label for="cfAudience">Top Audiences</label>
-    <select id="cfAudience">
-      <option disabled selected>Select an audience…</option>
-      <option>Busy Professionals</option><option>Entrepreneurs</option><option>Stay-at-Home Parents</option>
-      <option>Recent Graduates</option><option>Corporate Executives</option><option>Aspiring Coaches</option>
-      <option>Small Business Owners</option><option>Creative Freelancers</option><option>Health Enthusiasts</option>
-      <option>Community Leaders</option>
-    </select>
-
-    <label for="cfFormat">Top Formats</label>
-    <select id="cfFormat">
-      <option disabled selected>Select format…</option>
-      <option>Video Course</option><option>Interactive Workbook</option><option>Live Workshop</option>
-      <option>Webinar Series</option><option>Audio Training</option><option>Membership Program</option>
-      <option>Bootcamp</option>
-    </select>
-
-    <label for="cfLevel">Top Skill Levels</label>
-    <select id="cfLevel">
-      <option disabled selected>Select level…</option>
-      <option>Beginner Foundations</option><option>Intermediate Growth</option><option>Advanced Mastery</option>
-      <option>All Levels Comprehensive</option><option>Expert Intensive</option>
-    </select>
-
-    <button id="generateCourse">Generate CourseForge Content</button>
-    <div id="courseOutput" class="output"></div>
+    <pre id="hookbrainOutput">Your HookBrain output…</pre>
   </div>
 
   <script>
   document.addEventListener("DOMContentLoaded", () => {
     // Load user & plan
     const email = localStorage.getItem("cc_user") || "";
-    const plan = localStorage.getItem("cc_plan") || "free";
+    const plan  = localStorage.getItem("cc_plan") || "free";
     window.currentUser = { email, plan };
 
     // Dev-mode toggle
@@ -155,8 +138,8 @@
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-User-Plan": getPlan(),
-          "X-User-Id": email
+          "X-User-Plan":   getPlan(),
+          "X-User-Id":     email
         },
         body: JSON.stringify(body)
       });
@@ -173,10 +156,10 @@
     // HookBrain handler
     document.getElementById("generateCaptions").onclick = async () => {
       const payload = {
-        niche: document.getElementById("niche").value,
-        tone: document.getElementById("tone").value,
-        goal: document.getElementById("goal").value,
-        topic: document.getElementById("topic").value,
+        niche:    document.getElementById("niche").value,
+        tone:     document.getElementById("tone").value,
+        goal:     document.getElementById("goal").value,
+        topic:    document.getElementById("topic").value,
         postType: document.getElementById("postType").value
       };
       const out = document.getElementById("hookbrainOutput");
@@ -191,93 +174,6 @@
       } catch (e) {
         out.textContent = "Error: " + e.message;
       }
-    };
-
-    // CourseForge: inject complete content
-    document.getElementById("generateCourse").onclick = () => {
-      const out = document.getElementById("courseOutput");
-      out.innerHTML = `
-        <div class="section">
-          <h3>Title: Financial Freedom Foundations for Stay-at-Home Parents</h3>
-          <p>Unlocking your path to a secure financial future from the comfort of your own home. This mastercourse walks you, step by step, through budgeting, saving, investing, and planning—designed around your family’s needs.</p>
-        </div>
-
-        <div class="section">
-          <h3>Subtitle: Unlocking Your Path to a Secure Financial Future from Home</h3>
-        </div>
-
-        <div class="section">
-          <h3>Sales Page Blurb</h3>
-          <p>Are you ready to take control of your family’s finances without returning to a 9–5? “Financial Freedom Foundations” is an interactive mastercourse crafted for stay-at-home parents. Learn to build a bulletproof budget, eliminate debt, grow savings, and generate extra income—all at your own pace. Includes hands-on exercises, downloadable worksheets, and real-world strategies to secure your family’s prosperous future.</p>
-        </div>
-
-        <div class="section">
-          <h3>Modules & Lessons</h3>
-
-          <h4>Module 1: Establishing Your Financial Baseline</h4>
-          <ul>
-            <li><strong>Lesson 1.1:</strong> Understanding Your Current Financial Status – Map out income, expenses, and net worth with our Financial Health Questionnaire.</li>
-            <li><strong>Lesson 1.2:</strong> Setting Personal and Family Financial Goals – Use the SMART Goals Worksheet to define your financial objectives.</li>
-            <li><strong>Lesson 1.3:</strong> Basics of Budgeting and Saving – Create your first zero-based budget and automate savings.</li>
-          </ul>
-
-          <h4>Module 2: Smart Money Management for Stay-at-Home Parents</h4>
-          <ul>
-            <li><strong>Lesson 2.1:</strong> Effective Budgeting Techniques – Master envelope systems and digital tools to track every dollar.</li>
-            <li><strong>Lesson 2.2:</strong> Cutting Costs without Cutting Corners – Implement subscription audits and bulk-buying hacks.</li>
-            <li><strong>Lesson 2.3:</strong> Essentials of Debt Management – Compare snowball vs. avalanche methods and craft a payoff plan.</li>
-          </ul>
-
-          <h4>Module 3: Growing Your Money from Home</h4>
-          <ul>
-            <li><strong>Lesson 3.1:</strong> Introduction to Investing – Set up a brokerage account and diversify your portfolio.</li>
-            <li><strong>Lesson 3.2:</strong> Making Money through Freelancing and Remote Work – Identify skills and find gigs on major platforms.</li>
-            <li><strong>Lesson 3.3:</strong> Smart Shopping and Earning with Cashback and Rewards – Use apps and cards to stretch every dollar.</li>
-          </ul>
-
-          <h4>Module 4: Protecting Your Financial Future</h4>
-          <ul>
-            <li><strong>Lesson 4.1:</strong> Essential Insurance Knowledge – Evaluate health, life, and home coverage options.</li>
-            <li><strong>Lesson 4.2:</strong> Planning for Retirement as a Stay-at-Home Parent – Forecast your nest egg and explore IRAs/401(k)s.</li>
-            <li><strong>Lesson 4.3:</strong> College Savings Plan for Your Children – Compare 529 plans and scholarship strategies.</li>
-          </ul>
-        </div>
-
-        <div class="section">
-          <h3>Workbook Exercises per Lesson</h3>
-          <ul>
-            <li><strong>Lesson 1.1:</strong> Complete the Financial Health Questionnaire to assess net worth.</li>
-            <li><strong>Lesson 1.2:</strong> Fill in the SMART Goals Worksheet with personal and family objectives.</li>
-            <li><strong>Lesson 1.3:</strong> Draft your zero-based budget using our Budget Planner.</li>
-            <li><strong>Lesson 2.1:</strong> Audit last month’s spending with the Budget Analysis Tool.</li>
-            <li><strong>Lesson 2.2:</strong> Identify five cost-cutting opportunities in the Cost-Cutting Challenge.</li>
-            <li><strong>Lesson 2.3:</strong> Create your Debt Repayment Planner and track payoff progress.</li>
-            <li><strong>Lesson 3.1:</strong> Compare three investment vehicles using the Investment Comparison Chart.</li>
-            <li><strong>Lesson 3.2:</strong> Complete the Freelance Skill Assessment & First-Project Planner.</li>
-            <li><strong>Lesson 3.3:</strong> Track cashback and rewards in the Cashback & Rewards Log.</li>
-            <li><strong>Lesson 4.1:</strong> Use the Insurance Comparison Guide to evaluate three quotes.</li>
-            <li><strong>Lesson 4.2:</strong> Project retirement savings with the Retirement Planning Worksheet.</li>
-            <li><strong>Lesson 4.3:</strong> Build a college savings projection using the College Savings Calculator.</li>
-          </ul>
-        </div>
-
-        <div class="section">
-          <h3>Downloadable Resources List</h3>
-          <ul>
-            <li>Financial Health Questionnaire (PDF)</li>
-            <li>SMART Goals Worksheet (PDF)</li>
-            <li>Budget Planner (Excel)</li>
-            <li>Budget Analysis Tool (Spreadsheet)</li>
-            <li>Debt Repayment Planner (PDF)</li>
-            <li>Investment Comparison Chart (PDF)</li>
-            <li>Freelance Skill Assessment & First-Project Planner (PDF)</li>
-            <li>Cashback & Rewards Log (Spreadsheet)</li>
-            <li>Insurance Comparison Guide (PDF)</li>
-            <li>Retirement Planning Worksheet (PDF)</li>
-            <li>College Savings Calculator (Interactive)</li>
-          </ul>
-        </div>
-      `;
     };
   });
   </script>
