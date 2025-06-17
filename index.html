@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>CreatorCore AI Demo</title>
-  <!-- Tally Popup Embed -->
   <script async src="https://tally.so/widgets/embed.js"></script>
   <style>
     body { font-family:sans-serif; padding:2rem; background:#f9f9f9 }
@@ -20,8 +19,6 @@
     }
     button { background:#0066ff; color:#fff; border:none; cursor:pointer }
     pre { background:#f0f0f0; white-space:pre-wrap; padding:1rem; min-height:4em }
-    .section-label { font-weight:bold; margin-top:1.5em }
-    #planSelector { display:none; margin-bottom:1rem }
   </style>
 </head>
 <body>
@@ -34,7 +31,7 @@
   <nav><a href="index.html">Demo</a> | <a href="pricing.html">Pricing</a></nav>
 
   <!-- Dev Mode Plan Selector -->
-  <div id="planSelector" class="container">
+  <div id="planSelector" class="container" style="display:none;">
     <label>Your Plan (Dev Mode)</label>
     <select id="userPlan">
       <option value="free">Free</option>
@@ -132,20 +129,18 @@
   document.addEventListener("DOMContentLoaded", () => {
     const email = localStorage.getItem("cc_user") || "";
     const plan  = localStorage.getItem("cc_plan") || "free";
-    window.currentUser = { email, plan };
-
     const DEV_IDS = ["dev@yourdomain.com"];
     const isDev   = DEV_IDS.includes(email) || location.search.includes("dev=true");
     if (isDev) {
       document.getElementById("planSelector").style.display = "block";
       document.getElementById("userPlan").value = plan;
     }
+
     function getPlan() {
       return isDev ? document.getElementById("userPlan").value : plan;
     }
 
     async function postData(url, body) {
-      console.log("postData:", url, body);
       const headers = {
         "Content-Type": "application/json",
         "X-User-Plan":  getPlan(),
@@ -156,9 +151,7 @@
         headers,
         body: JSON.stringify(body)
       });
-      console.log("Response status:", res.status);
       const text = await res.text();
-      console.log("Raw response:", text);
       if (!res.ok) {
         let msg;
         try { msg = JSON.parse(text).error; }
@@ -168,7 +161,7 @@
       return JSON.parse(text);
     }
 
-    // HookBrain
+    // HookBrain handler (unchanged)
     document.getElementById("generateCaptions").onclick = async () => {
       const payload = {
         niche:    document.getElementById("niche").value,
@@ -180,22 +173,18 @@
       const out = document.getElementById("hookbrainOutput");
       out.textContent = "Generating…";
       try {
-        const d = await postData(
-          "https://creatorcore-api.vercel.app/api/hookbrain",
-          payload
-        );
+        const d = await postData("https://creatorcore-api.vercel.app/api/hookbrain", payload);
         out.textContent =
           `**Captions:**\n${d.captions.join("\n\n")}\n\n— — —\n\n` +
           `**Script:**\n${d.script}\n\n— — —\n\n` +
           `**Idea:**\n${d.idea}\n\n— — —\n\n` +
           `**SEO & Hashtags:**\n${d.seo.join(", ")}`;
       } catch (e) {
-        console.error(e);
-        document.getElementById("hookbrainOutput").textContent = "Error: " + e.message;
+        out.textContent = "Error: " + e.message;
       }
     };
 
-    // Updated CourseForge handler
+    // Updated CourseForge handler with JSON unwrap
     document.getElementById("generateCourse").onclick = async () => {
       const payload = {
         topic:    document.getElementById("cfTopic").value,
@@ -206,14 +195,21 @@
       const out = document.getElementById("courseOutput");
       out.textContent = "Generating…";
       try {
-        const { courseMarkdown } = await postData(
+        let { courseMarkdown } = await postData(
           "https://creatorcore-api.vercel.app/api/courseforge",
           payload
         );
-        console.log("courseMarkdown:", courseMarkdown);
+        // unwrap nested JSON if needed
+        let md = courseMarkdown.trim();
+        if (md.startsWith("{")) {
+          try {
+            const inner = JSON.parse(md);
+            if (inner.courseMarkdown) md = inner.courseMarkdown;
+          } catch {}
+        }
 
-        // Parse and render
-        const lines = courseMarkdown.trim().split("\n");
+        // parse and render
+        const lines = md.split("\n");
         const htmlSections = [];
         let currentLabel = "";
         let buffer = [];
@@ -238,36 +234,33 @@
 
         lines.forEach(line => {
           if (line.startsWith("### **Course Title:**")) {
-            flush();
-            currentLabel = "Course Title:";
-            buffer.push(line.replace(/### \*\*Course Title:\*\*\s*/, ""));
-          } else if (line.startsWith("### **Subtitle:**")) {
-            flush();
-            currentLabel = "Subtitle:";
-            buffer.push(line.replace(/### \*\*Subtitle:\*\*\s*/, ""));
-          } else if (line.startsWith("### **Sales Page Blurb:**")) {
-            flush();
-            currentLabel = "Sales Page Blurb:";
-          } else if (line.startsWith("### **Modules & Lessons:**")) {
-            flush();
-            currentLabel = "Modules & Lessons:";
-          } else if (line.startsWith("### **Workbook Exercises per Lesson:**")) {
-            flush();
-            currentLabel = "Workbook Exercises per Lesson:";
-          } else if (line.startsWith("### **Downloadable Resources List:**")) {
-            flush();
-            currentLabel = "Downloadable Resources List:";
-          } else if (line.startsWith("### **CTA & Next Steps:**")) {
-            flush();
-            currentLabel = "CTA & Next Steps:";
-          } else {
+            flush(); currentLabel = "Course Title:"; buffer.push(line.replace(/### \*\*Course Title:\*\*\s*/, ""));
+          }
+          else if (line.startsWith("### **Subtitle:**")) {
+            flush(); currentLabel = "Subtitle:"; buffer.push(line.replace(/### \*\*Subtitle:\*\*\s*/, ""));
+          }
+          else if (line.startsWith("## Sales Page Blurb")) {
+            flush(); currentLabel = "Sales Page Blurb:";
+          }
+          else if (line.startsWith("## Modules & Lessons")) {
+            flush(); currentLabel = "Modules & Lessons:";
+          }
+          else if (line.startsWith("## Workbook Exercises per Lesson")) {
+            flush(); currentLabel = "Workbook Exercises per Lesson:";
+          }
+          else if (line.startsWith("## Downloadable Resources List")) {
+            flush(); currentLabel = "Downloadable Resources List:";
+          }
+          else if (line.startsWith("## CTA & Next Steps")) {
+            flush(); currentLabel = "CTA & Next Steps:";
+          }
+          else {
             buffer.push(line.trim());
           }
         });
         flush();
         out.innerHTML = htmlSections.join("<hr/>");
       } catch (e) {
-        console.error("CourseForge error:", e);
         out.textContent = "Error: " + e.message;
       }
     };
