@@ -15,7 +15,7 @@
       border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 2rem;
     }
     label { font-weight: bold; margin-top: 1rem; display: block; }
-    input, select, button, pre {
+    select, input, button, pre {
       display: block; width: 100%; margin: .5rem 0; padding: .5rem;
       border: 1px solid #ddd; border-radius: 4px;
     }
@@ -39,9 +39,9 @@
   <div id="planSelector" class="container">
     <label>Your Plan (Dev Mode)</label>
     <select id="userPlan">
-      <option value="free">Free (3 captions/day, 1 course/mo)</option>
-      <option value="creator">Creator ($29/mo, unlimited captions, 3 blueprints/mo)</option>
-      <option value="pro">Pro ($99/mo, batching, funnels, priority support)</option>
+      <option value="free">Free (3 captions/day, 1 course/month)</option>
+      <option value="creator">Creator ($29/mo: unlimited captions, 3 blueprints)</option>
+      <option value="pro">Pro ($99/mo: batching, funnels, priority support)</option>
       <option value="lifetime">Lifetime ($497 one-time)</option>
     </select>
   </div>
@@ -49,7 +49,6 @@
   <!-- Hook Brain Module -->
   <div class="container">
     <h2>Hook Brain (All-In-One Content)</h2>
-
     <label for="niche">Niche</label>
     <select id="niche">
       <option disabled selected>Choose a niche…</option>
@@ -128,8 +127,8 @@
       <option>Advanced</option><option>All Levels (Comprehensive)</option>
     </select>
 
-    <button id="generateCourse">Generate High-Ticket Course</button>
-    <pre id="courseOutput">Your course blueprint will appear here…</pre>
+    <button id="generateCourse">Generate Fully-Fleshed Course</button>
+    <pre id="courseOutput">Your complete course package will appear here…</pre>
     <button onclick="location='pricing.html'">Upgrade or View Plans</button>
   </div>
 
@@ -148,14 +147,14 @@
       document.getElementById("userPlan").value = storedPlan;
     }
 
-    // Helper to get plan
+    // Plan helper
     function getPlan() {
       return isDev
         ? document.getElementById("userPlan").value
         : window.currentUser.plan;
     }
 
-    // Robust postData helper
+    // Robust postData
     async function postData(url, body) {
       const headers = {
         "Content-Type": "application/json",
@@ -163,9 +162,9 @@
         "X-User-Id":    window.currentUser.email
       };
       const res = await fetch(url, {
-        method:  "POST",
+        method: "POST",
         headers,
-        body:    JSON.stringify(body)
+        body: JSON.stringify(body)
       });
       const text = await res.text();
       if (!res.ok) {
@@ -176,7 +175,7 @@
       return JSON.parse(text);
     }
 
-    // HookBrain generation
+    // HookBrain
     document.getElementById("generateCaptions").addEventListener("click", async () => {
       const payload = {
         niche:    document.getElementById("niche").value,
@@ -187,19 +186,19 @@
       };
       try {
         const d = await postData("https://creatorcore-api.vercel.app/api/hookbrain", payload);
-        const output = [
+        const out = [
           "**Captions:**\n" + (d.captions||[]).join("\n\n"),
           "**Script:**\n"   + (d.script   || ""),
           "**Idea:**\n"     + (d.idea     || ""),
           "**SEO & Hashtags:**\n" + (d.seo||[]).join(", ")
         ].join("\n\n— — —\n\n");
-        document.getElementById("hookbrainOutput").textContent = output;
+        document.getElementById("hookbrainOutput").textContent = out;
       } catch (err) {
         document.getElementById("hookbrainOutput").textContent = "Error: " + err.message;
       }
     });
 
-    // CourseForge generation
+    // CourseForge
     document.getElementById("generateCourse").addEventListener("click", async () => {
       const payload = {
         topic:    document.getElementById("cfTopic").value,
@@ -209,13 +208,12 @@
       };
       try {
         const d = await postData("https://creatorcore-api.vercel.app/api/courseforge", payload);
-        document.getElementById("courseOutput").textContent = d.course || "";
+        document.getElementById("courseOutput").textContent = d.courseMarkdown || d.course || "";
       } catch (err) {
         document.getElementById("courseOutput").textContent = "Error: " + err.message;
       }
     });
   });
   </script>
-
 </body>
 </html>
