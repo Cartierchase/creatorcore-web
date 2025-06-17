@@ -54,7 +54,7 @@
       <option disabled selected>Choose a niche…</option>
       <option>Fitness</option><option>Beauty</option><option>Travel</option>
       <option>Food</option><option>Finance</option><option>Tech</option>
-      <option>Entrepreneurship</option><option>Wellness</option>
+      <option>Marketing</option><option>Wellness</option>
     </select>
 
     <label for="tone">Tone</label>
@@ -68,8 +68,8 @@
     <label for="goal">Goal</label>
     <select id="goal">
       <option disabled selected>Choose a goal…</option>
-      <option>Engagement</option><option>Followers</option><option>Brand Awareness</option>
-      <option>Leads</option><option>Sales</option>
+      <option>Engagement</option><option>Followers</option>
+      <option>Brand Awareness</option><option>Leads</option><option>Sales</option>
     </select>
 
     <label for="topic">Topic</label>
@@ -88,32 +88,59 @@
 
   <!-- CourseForge Module -->
   <div class="container">
-    <h2>CourseForge</h2>
+    <h2>CourseForge (High-Ticket Course Builder)</h2>
+
     <label for="cfTopic">Course Topic</label>
     <select id="cfTopic">
-      <option disabled selected>Select topic…</option>
-      <option>Mindset Mastery</option><option>Time Management</option><option>Stress Relief</option>
-      <option>Productivity Hacks</option><option>Confidence Building</option>
+      <option disabled selected>Select a topic…</option>
+      <option>Mindset Mastery</option>
+      <option>Time Management</option>
+      <option>Stress Relief</option>
+      <option>Productivity Hacks</option>
+      <option>Confidence Building</option>
+      <option>Financial Freedom</option>
+      <option>Relationship Deep-Dive</option>
+      <option>Career Acceleration</option>
+      <option>Health & Wellness</option>
+      <option>Entrepreneurial Mindset</option>
     </select>
 
     <label for="cfAudience">Audience</label>
     <select id="cfAudience">
-      <option disabled selected>Select audience…</option>
-      <option>Busy Professionals</option><option>Stay-at-Home Parents</option>
-      <option>Aspiring Coaches</option><option>Recent Graduates</option>
+      <option disabled selected>Select an audience…</option>
+      <option>Busy Professionals</option>
+      <option>Stay-at-Home Parents</option>
+      <option>Aspiring Coaches</option>
+      <option>Recent Graduates</option>
+      <option>Corporate Executives</option>
+      <option>Freelancers & Creatives</option>
+      <option>Fitness Enthusiasts</option>
+      <option>Small Business Owners</option>
+      <option>Educators</option>
+      <option>Entrepreneurs</option>
     </select>
 
     <label for="cfFormat">Format</label>
     <select id="cfFormat">
       <option disabled selected>Select format…</option>
-      <option>Video Course</option><option>Written Guide</option><option>Hybrid</option>
+      <option>Video Course</option>
+      <option>Written Guide</option>
+      <option>Hybrid (Video + Workbook)</option>
       <option>Live Workshop</option>
+      <option>Webinar Series</option>
+      <option>Audio Course</option>
+      <option>Bootcamp</option>
+      <option>Membership Site</option>
     </select>
 
     <label for="cfLevel">Skill Level</label>
     <select id="cfLevel">
       <option disabled selected>Select level…</option>
-      <option>Beginner</option><option>Intermediate</option><option>Advanced</option>
+      <option>Beginner</option>
+      <option>Intermediate</option>
+      <option>Advanced</option>
+      <option>All Levels (Comprehensive)</option>
+      <option>Expert</option>
     </select>
 
     <button id="generateCourse">Generate CourseForge Content</button>
@@ -122,39 +149,48 @@
 
   <script>
   document.addEventListener("DOMContentLoaded", () => {
-    // Initialize user & plan
-    const storedEmail = localStorage.getItem("cc_user") || "";
-    const storedPlan  = localStorage.getItem("cc_plan") || "free";
-    window.currentUser = { email: storedEmail, plan: storedPlan };
-    const DEV_IDS = ["dev@domain.com"];
-    const isDev = DEV_IDS.includes(storedEmail) || location.search.includes("dev=true");
+    // Load user & plan
+    const email = localStorage.getItem("cc_user") || "";
+    const plan  = localStorage.getItem("cc_plan") || "free";
+    window.currentUser = { email, plan };
+
+    // Dev-mode toggle
+    const DEV_IDS = ["dev@yourdomain.com"];
+    const isDev = DEV_IDS.includes(email) || location.search.includes("dev=true");
     if (isDev) {
       document.getElementById("planSelector").style.display = "block";
-      document.getElementById("userPlan").value = storedPlan;
-    }
-    function getPlan() {
-      return isDev ? document.getElementById("userPlan").value : window.currentUser.plan;
+      document.getElementById("userPlan").value = plan;
     }
 
-    // Helper to POST JSON
-    async function postData(url, body) {
+    function getPlan(){
+      return isDev
+        ? document.getElementById("userPlan").value
+        : window.currentUser.plan;
+    }
+
+    async function postData(url, body){
       const headers = {
         "Content-Type": "application/json",
         "X-User-Plan":  getPlan(),
         "X-User-Id":    window.currentUser.email
       };
-      const res = await fetch(url, { method: "POST", headers, body: JSON.stringify(body) });
+      const res = await fetch(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(body)
+      });
       const text = await res.text();
       if (!res.ok) {
         let msg;
-        try { msg = JSON.parse(text).error; } catch { msg = text; }
+        try { msg = JSON.parse(text).error; }
+        catch { msg = text; }
         throw new Error(msg || `HTTP ${res.status}`);
       }
       return JSON.parse(text);
     }
 
-    // HookBrain button
-    document.getElementById("generateCaptions").addEventListener("click", async () => {
+    // HookBrain
+    document.getElementById("generateCaptions").onclick = async () => {
       const payload = {
         niche:    document.getElementById("niche").value,
         tone:     document.getElementById("tone").value,
@@ -165,7 +201,10 @@
       const out = document.getElementById("hookbrainOutput");
       out.textContent = "Generating HookBrain content…";
       try {
-        const d = await postData("https://creatorcore-api.vercel.app/api/hookbrain", payload);
+        const d = await postData(
+          "https://creatorcore-api.vercel.app/api/hookbrain",
+          payload
+        );
         out.textContent =
           `**Captions:**\n${d.captions.join("\n\n")}\n\n— — —\n\n` +
           `**Script:**\n${d.script}\n\n— — —\n\n` +
@@ -174,10 +213,10 @@
       } catch (e) {
         out.textContent = "Error: " + e.message;
       }
-    });
+    };
 
-    // CourseForge button
-    document.getElementById("generateCourse").addEventListener("click", async () => {
+    // CourseForge
+    document.getElementById("generateCourse").onclick = async () => {
       const payload = {
         topic:    document.getElementById("cfTopic").value,
         audience: document.getElementById("cfAudience").value,
@@ -187,7 +226,10 @@
       const out = document.getElementById("courseOutput");
       out.textContent = "Generating CourseForge content…";
       try {
-        const d = await postData("https://creatorcore-api.vercel.app/api/courseforge", payload);
+        const d = await postData(
+          "https://creatorcore-api.vercel.app/api/courseforge",
+          payload
+        );
         out.textContent =
           `**Captions:**\n${d.captions.join("\n\n")}\n\n— — —\n\n` +
           `**Script:**\n${d.script}\n\n— — —\n\n` +
@@ -196,8 +238,9 @@
       } catch (e) {
         out.textContent = "Error: " + e.message;
       }
-    });
+    };
   });
   </script>
+
 </body>
 </html>
