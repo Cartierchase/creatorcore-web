@@ -4,140 +4,219 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>CreatorCore AI Demo</title>
+  <!-- Tally Popup Embed -->
   <script async src="https://tally.so/widgets/embed.js"></script>
   <style>
-    body { font-family:sans-serif; padding:2rem; background:#f9f9f9 }
-    nav { text-align:center; margin-bottom:1rem }
-    img.logo { max-width:200px; display:block; margin:0 auto 1rem }
+    body { font-family: sans-serif; padding: 2rem; background: #f9f9f9; }
+    nav { text-align: center; margin-bottom: 1rem; }
+    img.logo { max-width: 200px; display: block; margin: 0 auto 1rem; }
     .container {
-      max-width:600px; margin:auto; background:#fff; padding:2rem;
-      border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.1);
-      margin-bottom:2rem
+      max-width: 600px; margin: auto; background: #fff; padding: 2rem;
+      border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
     }
-    label { font-weight:bold; margin-top:1rem; display:block }
-    select,input,button,pre,a {
-      display:block; width:100%; margin:.5rem 0; padding:.5rem;
-      border:1px solid #ddd; border-radius:4px;
+    label { font-weight: bold; margin-top: 1rem; display: block; }
+    select, input, button, pre {
+      display: block; width: 100%; margin: .5rem 0; padding: .5rem;
+      border: 1px solid #ddd; border-radius: 4px;
     }
-    button { background:#0066ff;color:#fff;border:none;cursor:pointer }
-    pre { background:#f0f0f0;white-space:pre-wrap;min-height:3em;padding:1rem }
-    a { text-align:center; color:#0066ff; text-decoration:none }
-    #planSelector { display:none; margin-bottom:1rem }
+    button { background: #0066ff; color: #fff; border: none; cursor: pointer; }
+    pre { background: #f0f0f0; white-space: pre-wrap; min-height: 3em; padding: 1rem; }
+    #planSelector { display: none; margin-bottom: 1rem; }
   </style>
 </head>
 <body>
 
+  <!-- Logo & Banner -->
   <img class="logo" src="logo.png" alt="CreatorCore AI Logo"/>
   <img src="banner.png" alt="CreatorCore AI Banner"/>
-  <nav><a href="index.html">Demo</a> | <a href="pricing.html">Pricing</a></nav>
 
+  <!-- Navigation -->
+  <nav>
+    <a href="index.html">Demo</a> |
+    <a href="pricing.html">Pricing</a>
+  </nav>
+
+  <!-- Dev Mode Plan Selector -->
   <div id="planSelector" class="container">
     <label>Your Plan (Dev Mode)</label>
     <select id="userPlan">
       <option value="free">Free (3 captions/day, 1 course/mo)</option>
       <option value="creator">Creator ($29/mo: unlimited captions, 3 blueprints/mo)</option>
-      <option value="pro">Pro ($99/mo: batching, funnels, priority)</option>
+      <option value="pro">Pro ($99/mo: batching, funnels, priority support)</option>
       <option value="lifetime">Lifetime ($497 one-time)</option>
     </select>
   </div>
 
+  <!-- Hook Brain Module -->
   <div class="container">
-    <h2>Hook Brain (All-In-One)</h2>
+    <h2>Hook Brain (All-In-One Content)</h2>
     <label for="niche">Niche</label>
-    <select id="niche"><option disabled selected>Choose…</option><option>Fitness</option><option>Beauty</option><option>Travel</option><option>Food</option><option>Finance</option><option>Tech</option><option>Parenting</option><option>Fashion</option><option>Gaming</option><option>Wellness</option></select>
+    <select id="niche">
+      <option disabled selected>Choose a niche…</option>
+      <option>Fitness</option><option>Beauty</option><option>Travel</option>
+      <option>Food</option><option>Finance</option><option>Tech</option>
+      <option>Parenting</option><option>Fashion</option><option>Gaming</option>
+      <option>Wellness</option>
+    </select>
+
     <label for="tone">Tone</label>
-    <select id="tone"><option disabled selected>Choose…</option><option>Inspirational</option><option>Motivational</option><option>Humorous</option><option>Authentic</option><option>Edgy</option><option>Warm</option><option>Educational</option><option>Confessional</option></select>
+    <select id="tone">
+      <option disabled selected>Choose a tone…</option>
+      <option>Inspirational</option><option>Motivational</option>
+      <option>Humorous</option><option>Authentic</option>
+      <option>Edgy</option><option>Warm</option>
+      <option>Educational</option><option>Confessional</option>
+    </select>
+
     <label for="goal">Goal</label>
-    <select id="goal"><option disabled selected>Choose…</option><option>Engagement</option><option>Followers</option><option>Brand Awareness</option><option>Leads</option><option>Sales</option><option>Community Building</option></select>
+    <select id="goal">
+      <option disabled selected>Choose a goal…</option>
+      <option>Engagement</option><option>Followers</option>
+      <option>Brand Awareness</option><option>Leads</option>
+      <option>Sales</option><option>Community Building</option>
+    </select>
+
     <label for="topic">Topic</label>
-    <input id="topic" placeholder="Specific topic…"/>
+    <input id="topic" placeholder="Specific topic (e.g. Meal Prepping)"/>
+
     <label for="postType">Post Type</label>
-    <select id="postType"><option disabled selected>Select…</option><option>Instagram</option><option>TikTok</option><option>Reels</option><option>YouTube</option><option>Shorts</option></select>
-    <button id="generateCaptions">Generate Content</button>
+    <select id="postType">
+      <option disabled selected>Select post type…</option>
+      <option>Instagram</option><option>TikTok</option><option>Reels</option>
+      <option>YouTube</option><option>Shorts</option>
+    </select>
+
+    <button id="generateCaptions">Generate All Content</button>
     <pre id="hookbrainOutput">All generated content will appear here…</pre>
     <button onclick="location='pricing.html'">Upgrade or View Plans</button>
   </div>
 
+  <!-- Course Forge Module (Markdown Only) -->
   <div class="container">
-    <h2>Course Forge (High-Ticket)</h2>
+    <h2>Course Forge (High-Ticket Course Builder)</h2>
+
     <label for="cfTopic">Course Topic</label>
-    <select id="cfTopic"><option disabled selected>Choose topic…</option>
-      <option>Mindset Mastery</option><option>Time Management</option><option>Stress Relief</option><option>Productivity Hacks</option><option>Confidence Building</option><option>Financial Freedom</option><option>Relationship Deep-Dive</option><option>Career Acceleration</option><option>Health & Wellness</option><option>Entrepreneurial Mindset</option>
+    <select id="cfTopic">
+      <option disabled selected>Select a topic…</option>
+      <option>Mindset Mastery</option><option>Time Management</option>
+      <option>Stress Relief</option><option>Productivity Hacks</option>
+      <option>Confidence Building</option><option>Financial Freedom</option>
+      <option>Relationship Deep-Dive</option><option>Career Acceleration</option>
+      <option>Health & Wellness</option><option>Entrepreneurial Mindset</option>
     </select>
+
     <label for="cfAudience">Audience</label>
-    <select id="cfAudience"><option disabled selected>Choose audience…</option>
-      <option>Busy Professionals</option><option>Stay-at-Home Parents</option><option>Aspiring Coaches</option><option>Recent Graduates</option><option>Corporate Executives</option><option>Freelancers & Creatives</option><option>Fitness Enthusiasts</option><option>Small Business Owners</option>
+    <select id="cfAudience">
+      <option disabled selected>Select an audience…</option>
+      <option>Busy Professionals</option><option>Stay-at-Home Parents</option>
+      <option>Aspiring Coaches</option><option>Recent Graduates</option>
+      <option>Corporate Executives</option><option>Freelancers & Creatives</option>
+      <option>Fitness Enthusiasts</option><option>Small Business Owners</option>
     </select>
+
     <label for="cfFormat">Format</label>
-    <select id="cfFormat"><option disabled selected>Choose format…</option>
-      <option>Video Course</option><option>Written Guide</option><option>Hybrid (Video+Workbook)</option><option>Live Workshop</option>
+    <select id="cfFormat">
+      <option disabled selected>Select format…</option>
+      <option>Video Course</option><option>Written Guide</option>
+      <option>Hybrid (Video + Workbook)</option><option>Live Workshop</option>
     </select>
+
     <label for="cfLevel">Skill Level</label>
-    <select id="cfLevel"><option disabled selected>Choose level…</option>
-      <option>Beginner</option><option>Intermediate</option><option>Advanced</option><option>All Levels</option>
+    <select id="cfLevel">
+      <option disabled selected>Select level…</option>
+      <option>Beginner</option><option>Intermediate</option>
+      <option>Advanced</option><option>All Levels (Comprehensive)</option>
     </select>
-    <button id="generateCourse">Generate Course + PDF</button>
-    <pre id="courseForgeOutput">Your complete course appears here…</pre>
-    <a id="downloadPdf" href="#" download="course.pdf" style="display:none">📄 Download PDF</a>
+
+    <button id="generateCourse">Generate Course</button>
+    <pre id="courseOutput">Your complete course package will appear here…</pre>
     <button onclick="location='pricing.html'">Upgrade or View Plans</button>
   </div>
 
   <script>
   document.addEventListener("DOMContentLoaded", () => {
-    const storedEmail = localStorage.getItem("cc_user")||"";
-    const storedPlan  = localStorage.getItem("cc_plan")||"free";
-    window.currentUser = { email:storedEmail, plan:storedPlan };
-    const DEV_IDS = ["dev@yourdomain.com"];
-    const isDev = DEV_IDS.includes(storedEmail)||location.search.includes("dev=true");
-    if(isDev){
-      document.getElementById("planSelector").style.display="block";
-      document.getElementById("userPlan").value=storedPlan;
-    }
-    function getPlan(){ return isDev?document.getElementById("userPlan").value:window.currentUser.plan; }
+    // Load stored email & plan
+    const storedEmail = localStorage.getItem("cc_user") || "";
+    const storedPlan  = localStorage.getItem("cc_plan") || "free";
+    window.currentUser = { email: storedEmail, plan: storedPlan };
 
-    async function postData(url,body){ 
-      const headers={"Content-Type":"application/json","X-User-Plan":getPlan(),"X-User-Id":window.currentUser.email};
-      const res=await fetch(url,{method:"POST",headers,body:JSON.stringify(body)});
-      const text=await res.text();
-      if(!res.ok){ let m; try{m=JSON.parse(text).error;}catch{m=text;} throw new Error(m||res.status); }
+    // Dev-mode detection
+    const DEV_USER_IDS = ["dev@yourdomain.com"];
+    const isDev = DEV_USER_IDS.includes(storedEmail) || location.search.includes("dev=true");
+    if (isDev) {
+      document.getElementById("planSelector").style.display = "block";
+      document.getElementById("userPlan").value = storedPlan;
+    }
+
+    // Helper to get current plan
+    function getPlan() {
+      return isDev
+        ? document.getElementById("userPlan").value
+        : window.currentUser.plan;
+    }
+
+    // Robust postData helper
+    async function postData(url, body) {
+      const headers = {
+        "Content-Type": "application/json",
+        "X-User-Plan":  getPlan(),
+        "X-User-Id":    window.currentUser.email
+      };
+      const res = await fetch(url, {
+        method:  "POST",
+        headers,
+        body:    JSON.stringify(body)
+      });
+      const text = await res.text();
+      if (!res.ok) {
+        let msg;
+        try { msg = JSON.parse(text).error; } catch { msg = text; }
+        throw new Error(msg || `HTTP ${res.status}`);
+      }
       return JSON.parse(text);
     }
 
-    // HookBrain
-    document.getElementById("generateCaptions").onclick=async()=>{
-      const p={ niche:document.getElementById("niche").value,
-        tone:document.getElementById("tone").value,
-        goal:document.getElementById("goal").value,
-        topic:document.getElementById("topic").value,
-        postType:document.getElementById("postType").value };
-      try{
-        const d=await postData("https://creatorcore-api.vercel.app/api/hookbrain",p);
-        const out=[
-          "**Captions:**\n"+(d.captions||[]).join("\n\n"),
-          "**Script:**\n"+(d.script||""),
-          "**Idea:**\n"+(d.idea||""),
-          "**SEO & Hashtags:**\n"+(d.seo||[]).join(", ")
+    // HookBrain generation
+    document.getElementById("generateCaptions").addEventListener("click", async () => {
+      const payload = {
+        niche:    document.getElementById("niche").value,
+        tone:     document.getElementById("tone").value,
+        goal:     document.getElementById("goal").value,
+        topic:    document.getElementById("topic").value,
+        postType: document.getElementById("postType").value
+      };
+      try {
+        const d = await postData("https://creatorcore-api.vercel.app/api/hookbrain", payload);
+        const output = [
+          "**Captions:**\n" + (d.captions || []).join("\n\n"),
+          "**Script:**\n"   + (d.script || ""),
+          "**Idea:**\n"     + (d.idea || ""),
+          "**SEO & Hashtags:**\n" + (d.seo || []).join(", ")
         ].join("\n\n— — —\n\n");
-        hookbrainOutput.textContent=out;
-      }catch(e){ hookbrainOutput.textContent="Error: "+e.message; }
-    };
+        document.getElementById("hookbrainOutput").textContent = output;
+      } catch (err) {
+        document.getElementById("hookbrainOutput").textContent = "Error: " + err.message;
+      }
+    });
 
-    // CourseForge + PDF
-    document.getElementById("generateCourse").onclick=async()=>{
-      const p={ topic:document.getElementById("cfTopic").value,
-        audience:document.getElementById("cfAudience").value,
-        format:document.getElementById("cfFormat").value,
-        level:document.getElementById("cfLevel").value };
-      try{
-        const d=await postData("https://creatorcore-api.vercel.app/api/courseforge",p);
-        courseForgeOutput.textContent=d.courseMarkdown;
-        // show PDF link
-        const blob=await fetch("data:application/pdf;base64,"+d.pdfBase64).then(r=>r.blob());
-        const url=URL.createObjectURL(blob);
-        const a=downloadPdf; a.href=url; a.style.display="block";
-      }catch(e){ courseForgeOutput.textContent="Error: "+e.message; }
-    };
+    // CourseForge generation
+    document.getElementById("generateCourse").addEventListener("click", async () => {
+      const payload = {
+        topic:    document.getElementById("cfTopic").value,
+        audience: document.getElementById("cfAudience").value,
+        format:   document.getElementById("cfFormat").value,
+        level:    document.getElementById("cfLevel").value
+      };
+      try {
+        const d = await postData("https://creatorcore-api.vercel.app/api/courseforge", payload);
+        document.getElementById("courseOutput").textContent = d.courseMarkdown || "No content returned.";
+      } catch (err) {
+        document.getElementById("courseOutput").textContent = "Error: " + err.message;
+      }
+    });
   });
   </script>
+
 </body>
 </html>
