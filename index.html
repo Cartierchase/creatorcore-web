@@ -40,7 +40,7 @@
     <label>Your Plan (Dev Mode)</label>
     <select id="userPlan">
       <option value="free">Free (3 captions/day, 1 course/month)</option>
-      <option value="creator">Creator ($29/mo: unlimited captions, 3 blueprints)</option>
+      <option value="creator">Creator ($29/mo: unlimited captions, 3 blueprints/mo)</option>
       <option value="pro">Pro ($99/mo: batching, funnels, priority support)</option>
       <option value="lifetime">Lifetime ($497 one-time)</option>
     </select>
@@ -128,7 +128,9 @@
     </select>
 
     <button id="generateCourse">Generate Fully-Fleshed Course</button>
-    <pre id="courseOutput">Your complete course package will appear here…</pre>
+    <pre id="courseForgeOutput">
+Your complete, ready-to-sell course package will appear here…
+    </pre>
     <button onclick="location='pricing.html'">Upgrade or View Plans</button>
   </div>
 
@@ -154,7 +156,7 @@
         : window.currentUser.plan;
     }
 
-    // Robust postData
+    // Robust postData helper
     async function postData(url, body) {
       const headers = {
         "Content-Type": "application/json",
@@ -162,9 +164,9 @@
         "X-User-Id":    window.currentUser.email
       };
       const res = await fetch(url, {
-        method: "POST",
+        method:  "POST",
         headers,
-        body: JSON.stringify(body)
+        body:    JSON.stringify(body)
       });
       const text = await res.text();
       if (!res.ok) {
@@ -208,12 +210,14 @@
       };
       try {
         const d = await postData("https://creatorcore-api.vercel.app/api/courseforge", payload);
-        document.getElementById("courseOutput").textContent = d.courseMarkdown || d.course || "";
+        document.getElementById("courseForgeOutput").textContent = d.courseMarkdown || "";
       } catch (err) {
-        document.getElementById("courseOutput").textContent = "Error: " + err.message;
+        document.getElementById("courseForgeOutput").textContent = "Error: " + err.message;
       }
     });
+
   });
   </script>
+
 </body>
 </html>
