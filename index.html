@@ -129,70 +129,146 @@
   </div>
 
   <script>
-  document.addEventListener("DOMContentLoaded",()=>{
-    const email=localStorage.getItem("cc_user")||"",
-          plan=localStorage.getItem("cc_plan")||"free";
-    window.currentUser={email,plan};
-    const DEV_IDS=["dev@yourdomain.com"],
-          isDev=DEV_IDS.includes(email)||location.search.includes("dev=true");
-    if(isDev){
-      document.getElementById("planSelector").style.display="block";
-      document.getElementById("userPlan").value=plan;
-    }
-    function getPlan(){ return isDev?document.getElementById("userPlan").value:plan; }
+  document.addEventListener("DOMContentLoaded", () => {
+    const email = localStorage.getItem("cc_user") || "";
+    const plan  = localStorage.getItem("cc_plan") || "free";
+    window.currentUser = { email, plan };
 
-    async function postData(url,body){
-      console.log("postData:",url,body);
-      const headers={
-        "Content-Type":"application/json",
-        "X-User-Plan":getPlan(),
-        "X-User-Id":email
+    const DEV_IDS = ["dev@yourdomain.com"];
+    const isDev   = DEV_IDS.includes(email) || location.search.includes("dev=true");
+    if (isDev) {
+      document.getElementById("planSelector").style.display = "block";
+      document.getElementById("userPlan").value = plan;
+    }
+    function getPlan() {
+      return isDev ? document.getElementById("userPlan").value : plan;
+    }
+
+    async function postData(url, body) {
+      console.log("postData:", url, body);
+      const headers = {
+        "Content-Type": "application/json",
+        "X-User-Plan":  getPlan(),
+        "X-User-Id":    email
       };
-      const res=await fetch(url,{method:"POST",headers,body:JSON.stringify(body)});
-      console.log("Response status:",res.status);
-      const text=await res.text();
-      console.log("Raw response:",text);
-      if(!res.ok){let m;try{m=JSON.parse(text).error}catch{m=text}throw new Error(m||res.status)}
+      const res = await fetch(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(body)
+      });
+      console.log("Response status:", res.status);
+      const text = await res.text();
+      console.log("Raw response:", text);
+      if (!res.ok) {
+        let msg;
+        try { msg = JSON.parse(text).error; }
+        catch { msg = text; }
+        throw new Error(msg || res.status);
+      }
       return JSON.parse(text);
     }
 
     // HookBrain
-    document.getElementById("generateCaptions").onclick=async()=>{
-      const p={
-        niche:document.getElementById("niche").value,
-        tone:document.getElementById("tone").value,
-        goal:document.getElementById("goal").value,
-        topic:document.getElementById("topic").value,
-        postType:document.getElementById("postType").value
-      }, out=document.getElementById("hookbrainOutput");
-      out.textContent="Generating…";
-      try{
-        const d=await postData("https://creatorcore-api.vercel.app/api/hookbrain",p);
-        out.textContent=
-          `**Captions:**\n${d.captions.join("\n\n")}\n\n— — —\n\n`+
-          `**Script:**\n${d.script}\n\n— — —\n\n`+
-          `**Idea:**\n${d.idea}\n\n— — —\n\n`+
+    document.getElementById("generateCaptions").onclick = async () => {
+      const payload = {
+        niche:    document.getElementById("niche").value,
+        tone:     document.getElementById("tone").value,
+        goal:     document.getElementById("goal").value,
+        topic:    document.getElementById("topic").value,
+        postType: document.getElementById("postType").value
+      };
+      const out = document.getElementById("hookbrainOutput");
+      out.textContent = "Generating…";
+      try {
+        const d = await postData(
+          "https://creatorcore-api.vercel.app/api/hookbrain",
+          payload
+        );
+        out.textContent =
+          `**Captions:**\n${d.captions.join("\n\n")}\n\n— — —\n\n` +
+          `**Script:**\n${d.script}\n\n— — —\n\n` +
+          `**Idea:**\n${d.idea}\n\n— — —\n\n` +
           `**SEO & Hashtags:**\n${d.seo.join(", ")}`;
-      }catch(e){console.error(e); out.textContent="Error: "+e.message}
+      } catch (e) {
+        console.error(e);
+        document.getElementById("hookbrainOutput").textContent = "Error: " + e.message;
+      }
     };
 
-    // CourseForge with logging
-    document.getElementById("generateCourse").onclick=async()=>{
-      const payload={
-        topic:document.getElementById("cfTopic").value,
-        audience:document.getElementById("cfAudience").value,
-        format:document.getElementById("cfFormat").value,
-        level:document.getElementById("cfLevel").value
-      }, out=document.getElementById("courseOutput");
-      console.log("GenerateCourse payload:",payload);
-      out.textContent="Loading…";
-      try{
-        const { courseMarkdown }=await postData("https://creatorcore-api.vercel.app/api/courseforge",payload);
-        console.log("courseMarkdown:",courseMarkdown);
-        out.textContent = courseMarkdown;
-      }catch(e){
-        console.error("CourseForge error:",e);
-        out.textContent="Error: "+e.message;
+    // Updated CourseForge handler
+    document.getElementById("generateCourse").onclick = async () => {
+      const payload = {
+        topic:    document.getElementById("cfTopic").value,
+        audience: document.getElementById("cfAudience").value,
+        format:   document.getElementById("cfFormat").value,
+        level:    document.getElementById("cfLevel").value
+      };
+      const out = document.getElementById("courseOutput");
+      out.textContent = "Generating…";
+      try {
+        const { courseMarkdown } = await postData(
+          "https://creatorcore-api.vercel.app/api/courseforge",
+          payload
+        );
+        console.log("courseMarkdown:", courseMarkdown);
+
+        // Parse and render
+        const lines = courseMarkdown.trim().split("\n");
+        const htmlSections = [];
+        let currentLabel = "";
+        let buffer = [];
+
+        function flush() {
+          if (!currentLabel) return;
+          const isList = buffer.some(l => l.startsWith("- "));
+          let body;
+          if (isList) {
+            body = "<ul>" + buffer.map(l => `<li>${l.replace(/^- /, "")}</li>`).join("") + "</ul>";
+          } else {
+            body = buffer.map(l => `<p>${l}</p>`).join("");
+          }
+          htmlSections.push(`
+            <div>
+              <strong>${currentLabel}</strong>
+              ${body}
+            </div>
+          `);
+          buffer = [];
+        }
+
+        lines.forEach(line => {
+          if (line.startsWith("### **Course Title:**")) {
+            flush();
+            currentLabel = "Course Title:";
+            buffer.push(line.replace(/### \*\*Course Title:\*\*\s*/, ""));
+          } else if (line.startsWith("### **Subtitle:**")) {
+            flush();
+            currentLabel = "Subtitle:";
+            buffer.push(line.replace(/### \*\*Subtitle:\*\*\s*/, ""));
+          } else if (line.startsWith("### **Sales Page Blurb:**")) {
+            flush();
+            currentLabel = "Sales Page Blurb:";
+          } else if (line.startsWith("### **Modules & Lessons:**")) {
+            flush();
+            currentLabel = "Modules & Lessons:";
+          } else if (line.startsWith("### **Workbook Exercises per Lesson:**")) {
+            flush();
+            currentLabel = "Workbook Exercises per Lesson:";
+          } else if (line.startsWith("### **Downloadable Resources List:**")) {
+            flush();
+            currentLabel = "Downloadable Resources List:";
+          } else if (line.startsWith("### **CTA & Next Steps:**")) {
+            flush();
+            currentLabel = "CTA & Next Steps:";
+          } else {
+            buffer.push(line.trim());
+          }
+        });
+        flush();
+        out.innerHTML = htmlSections.join("<hr/>");
+      } catch (e) {
+        console.error("CourseForge error:", e);
+        out.textContent = "Error: " + e.message;
       }
     };
   });
