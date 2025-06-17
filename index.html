@@ -3,22 +3,23 @@
 <head>
   <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>CreatorCore AI Demo</title>
+  <!-- Tally Popup -->
   <script async src="https://tally.so/widgets/embed.js"></script>
   <style>
-    body { font-family:sans-serif; padding:2rem; background:#f9f9f9 }
-    nav { text-align:center; margin-bottom:1rem }
-    img.logo { max-width:200px; display:block; margin:0 auto 1rem }
+    body { font-family: sans-serif; padding: 2rem; background: #f9f9f9; }
+    nav { text-align: center; margin-bottom: 1rem; }
+    img.logo { max-width: 200px; display: block; margin: 0 auto 1rem; }
     .container {
-      max-width:600px; margin:auto; background:#fff; padding:2rem;
-      border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.1); margin-bottom:2rem
+      max-width: 600px; margin: auto; background: #fff; padding: 2rem;
+      border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 2rem;
     }
-    label { font-weight:bold; margin-top:1rem; display:block }
-    select,input,button,pre {
-      display:block; width:100%; margin:.5rem 0; padding:.5rem;
-      border:1px solid #ddd; border-radius:4px
+    label { font-weight: bold; margin-top: 1rem; display: block; }
+    select, input, button, pre {
+      display: block; width: 100%; margin: .5rem 0; padding: .5rem;
+      border: 1px solid #ddd; border-radius: 4px;
     }
-    button { background:#0066ff; color:#fff; border:none; cursor:pointer }
-    pre { background:#f0f0f0; white-space:pre-wrap; padding:1rem; min-height:4em }
+    button { background: #0066ff; color: #fff; border: none; cursor: pointer; }
+    pre { background: #f0f0f0; white-space: pre-wrap; padding: 1rem; min-height: 4em; }
   </style>
 </head>
 <body>
@@ -44,7 +45,69 @@
   <!-- HookBrain Module -->
   <div class="container">
     <h2>HookBrain</h2>
-    <!-- (same dropdowns & inputs as before) -->
+
+    <label for="niche">Top Niches</label>
+    <select id="niche">
+      <option disabled selected>Choose a niche…</option>
+      <option>Fitness & Health</option>
+      <option>Beauty & Skincare</option>
+      <option>Travel & Adventure</option>
+      <option>Food & Cooking</option>
+      <option>Personal Finance</option>
+      <option>Tech & Gadgets</option>
+      <option>Lifestyle & Wellness</option>
+      <option>Parenting & Family</option>
+      <option>Fashion & Style</option>
+      <option>Gaming & Esports</option>
+    </select>
+
+    <label for="tone">Top Tones</label>
+    <select id="tone">
+      <option disabled selected>Choose a tone…</option>
+      <option>Inspirational</option>
+      <option>Motivational</option>
+      <option>Humorous</option>
+      <option>Authentic</option>
+      <option>Empathetic</option>
+      <option>Edgy</option>
+      <option>Educational</option>
+      <option>Conversational</option>
+      <option>Confident</option>
+      <option>Upbeat</option>
+    </select>
+
+    <label for="goal">Top Goals</label>
+    <select id="goal">
+      <option disabled selected>Choose a goal…</option>
+      <option>Increase Engagement</option>
+      <option>Gain Followers</option>
+      <option>Drive Clicks</option>
+      <option>Grow Brand Awareness</option>
+      <option>Generate Leads</option>
+      <option>Boost Sales</option>
+      <option>Build Community</option>
+      <option>Promote Event</option>
+      <option>Educate Audience</option>
+      <option>Gather Feedback</option>
+    </select>
+
+    <label for="topic">Your Custom Topic</label>
+    <input id="topic" type="text" placeholder="Enter your own topic…"/>
+
+    <label for="postType">Top Post Types</label>
+    <select id="postType">
+      <option disabled selected>Select post type…</option>
+      <option>Instagram Feed</option>
+      <option>Instagram Story</option>
+      <option>Instagram Reel</option>
+      <option>TikTok Video</option>
+      <option>YouTube Short</option>
+      <option>YouTube Long-Form</option>
+      <option>Facebook Post</option>
+      <option>LinkedIn Article</option>
+      <option>Twitter Thread</option>
+    </select>
+
     <button id="generateCaptions">Generate HookBrain Content</button>
     <pre id="hookbrainOutput">Your HookBrain output…</pre>
   </div>
@@ -52,7 +115,59 @@
   <!-- CourseForge Module -->
   <div class="container">
     <h2>CourseForge (Life Coaching / Mastercourse)</h2>
-    <!-- (same dropdowns as before) -->
+
+    <label for="cfTopic">Top Mastercourse Topics</label>
+    <select id="cfTopic">
+      <option disabled selected>Select a topic…</option>
+      <option>Mindset Mastery</option>
+      <option>Peak Productivity</option>
+      <option>Emotional Intelligence</option>
+      <option>Leadership & Influence</option>
+      <option>Work-Life Balance</option>
+      <option>Financial Freedom</option>
+      <option>Confidence & Self-Esteem</option>
+      <option>Career Acceleration</option>
+      <option>Relationship Mastery</option>
+      <option>Health & Wellness Transformation</option>
+    </select>
+
+    <label for="cfAudience">Top Audiences</label>
+    <select id="cfAudience">
+      <option disabled selected>Select an audience…</option>
+      <option>Busy Professionals</option>
+      <option>Entrepreneurs</option>
+      <option>Stay-at-Home Parents</option>
+      <option>Recent Graduates</option>
+      <option>Corporate Executives</option>
+      <option>Aspiring Coaches</option>
+      <option>Small Business Owners</option>
+      <option>Creative Freelancers</option>
+      <option>Health Enthusiasts</option>
+      <option>Community Leaders</option>
+    </select>
+
+    <label for="cfFormat">Top Formats</label>
+    <select id="cfFormat">
+      <option disabled selected>Select format…</option>
+      <option>Video Course</option>
+      <option>Interactive Workbook</option>
+      <option>Live Workshop</option>
+      <option>Webinar Series</option>
+      <option>Audio Training</option>
+      <option>Membership Program</option>
+      <option>Bootcamp</option>
+    </select>
+
+    <label for="cfLevel">Top Skill Levels</label>
+    <select id="cfLevel">
+      <option disabled selected>Select level…</option>
+      <option>Beginner Foundations</option>
+      <option>Intermediate Growth</option>
+      <option>Advanced Mastery</option>
+      <option>All Levels Comprehensive</option>
+      <option>Expert Intensive</option>
+    </select>
+
     <button id="generateCourse">Generate CourseForge Content</button>
     <pre id="courseOutput">Your CourseForge output…</pre>
   </div>
@@ -84,17 +199,35 @@
         let msg;
         try{ msg = JSON.parse(text).error }
         catch{ msg = text }
-        throw new Error(msg || res.status);
+        throw new Error(msg||res.status);
       }
       return JSON.parse(text);
     }
 
-    // HookBrain handler (unchanged)
+    // HookBrain handler
     document.getElementById("generateCaptions").onclick = async () => {
-      /* … existing HookBrain code … */
+      const payload = {
+        niche:    document.getElementById("niche").value,
+        tone:     document.getElementById("tone").value,
+        goal:     document.getElementById("goal").value,
+        topic:    document.getElementById("topic").value,
+        postType: document.getElementById("postType").value
+      };
+      const out = document.getElementById("hookbrainOutput");
+      out.textContent = "Generating…";
+      try {
+        const d = await postData("https://creatorcore-api.vercel.app/api/hookbrain", payload);
+        out.textContent =
+          `**Captions:**\n${d.captions.join("\n\n")}\n\n— — —\n\n` +
+          `**Script:**\n${d.script}\n\n— — —\n\n` +
+          `**Idea:**\n${d.idea}\n\n— — —\n\n` +
+          `**SEO & Hashtags:**\n${d.seo.join(", ")}`;
+      } catch (e) {
+        out.textContent = "Error: " + e.message;
+      }
     };
 
-    // ←—— CHANGED: CourseForge handler now unwraps nested JSON and parses sections
+    // Updated CourseForge handler
     document.getElementById("generateCourse").onclick = async () => {
       const payload = {
         topic:    document.getElementById("cfTopic").value,
@@ -111,7 +244,7 @@
           payload
         );
 
-        // **UNWRAP** if courseMarkdown itself is a JSON string
+        // unwrap nested JSON
         let md = courseMarkdown.trim();
         if (md.startsWith("{")) {
           try {
@@ -120,7 +253,7 @@
           } catch {}
         }
 
-        // **PARSE & RENDER** into clean, labeled sections
+        // parse & render
         const lines = md.split("\n");
         const sections = [];
         let label = "", buffer = [];
@@ -129,8 +262,8 @@
           if (!label) return;
           const isList = buffer.some(l => l.startsWith("- "));
           const body = isList
-            ? `<ul>${ buffer.map(l=>`<li>${l.slice(2)}</li>`).join("") }</ul>`
-            : buffer.map(l=>`<p>${l}</p>`).join("");
+            ? `<ul>${ buffer.map(l => `<li>${l.slice(2)}</li>`).join("") }</ul>`
+            : buffer.map(l => `<p>${l}</p>`).join("");
           sections.push(`<div><strong>${label}</strong>${body}</div>`);
           buffer = [];
         }
@@ -162,14 +295,11 @@
           }
         });
         flush();
-
         out.innerHTML = sections.join("<hr/>");
       } catch (e) {
         out.textContent = "Error: " + e.message;
       }
     };
-    // —— END CHANGED BLOCK
-
   });
   </script>
 
