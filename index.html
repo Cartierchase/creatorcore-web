@@ -32,7 +32,7 @@
 
   <!-- Dev Mode Plan Selector -->
   <div id="planSelector" class="container" style="display:none;">
-    <label>Your Plan (Dev Mode)</label>
+    <label for="userPlan">Your Plan (Dev Mode)</label>
     <select id="userPlan">
       <option value="free">Free</option>
       <option value="creator">Creator</option>
@@ -161,7 +161,7 @@
       return JSON.parse(text);
     }
 
-    // HookBrain handler (unchanged)
+    // HookBrain handler
     document.getElementById("generateCaptions").onclick = async () => {
       const payload = {
         niche:    document.getElementById("niche").value,
