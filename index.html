@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>CreatorCore AI</title>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>CreatorCore AI Demo</title>
   <script async src="https://tally.so/widgets/embed.js"></script>
   <style>
     body { font-family: sans-serif; padding: 2rem; background: #f9f9f9; }
@@ -20,15 +19,17 @@
     }
     button { background: #0066ff; color: #fff; border: none; cursor: pointer; }
     pre { background: #f0f0f0; white-space: pre-wrap; padding: 1rem; min-height: 4em; }
+    .section-title { margin-top: 1.5rem; font-weight: bold; }
   </style>
 </head>
 <body>
 
   <!-- Logo & Banner -->
   <img class="logo" src="logo.png" alt="CreatorCore AI Logo"/>
+  <img src="banner.png" alt="CreatorCore AI Banner"/>
 
   <!-- Nav -->
-  <nav><a href="index.html">Home</a> | <a href="pricing.html">Pricing</a></nav>
+  <nav><a href="index.html">Demo</a> | <a href="pricing.html">Pricing</a></nav>
 
   <!-- Dev Mode Plan Selector -->
   <div id="planSelector" class="container" style="display:none;">
@@ -83,16 +84,19 @@
     </select>
 
     <button id="generateCaptions">Generate HookBrain Content</button>
-    <pre id="hookbrainOutput">Your HookBrain output…</pre>
+
+    <pre id="hookbrainOutput" class="output">
+      Your HookBrain output will appear here…
+    </pre>
   </div>
 
   <script>
   document.addEventListener("DOMContentLoaded", () => {
-    // 1) Load user & plan
+    // Load user & plan
     const email = localStorage.getItem("cc_user") || "";
     const storedPlan = localStorage.getItem("cc_plan") || "free";
 
-    // 2) Dev-mode detection
+    // Dev-mode detection
     const DEV_IDS = ["elijermartinez222@gmail.com","mambertinez@gmail.com"];
     const isDev = DEV_IDS.includes(email) || location.search.includes("dev=true");
     if (isDev) {
@@ -100,20 +104,16 @@
       document.getElementById("userPlan").value = storedPlan;
     }
 
-    // 3) Helper to get effective plan
+    // Helpers
     function getPlan() {
       return isDev ? document.getElementById("userPlan").value : storedPlan;
     }
-
-    // 4) Pick model per plan
     function pickModel() {
       const p = getPlan();
       if (p === "creator") return "gpt-4-0314";
-      if (p === "pro"||p==="lifetime") return "gpt-4-turbo";
+      if (p === "pro" || p==="lifetime") return "gpt-4-turbo";
       return "gpt-3.5-turbo";
     }
-
-    // 5) Rate-limit free
     function canCallHookBrain() {
       if (getPlan() !== "free") return true;
       const today = new Date().toISOString().slice(0,10);
@@ -123,8 +123,6 @@
       localStorage.setItem(key, count + 1);
       return true;
     }
-
-    // 6) POST helper
     async function postData(url, body) {
       const res = await fetch(url, {
         method: "POST",
@@ -145,7 +143,7 @@
       return JSON.parse(text);
     }
 
-    // 7) HookBrain handler
+    // HookBrain handler
     document.getElementById("generateCaptions").onclick = async () => {
       if (!canCallHookBrain()) {
         return alert("Free users can only generate 3 HookBrain responses per day. Upgrade for unlimited.");
@@ -161,11 +159,18 @@
       out.textContent = "Generating…";
       try {
         const d = await postData("https://creatorcore-api.vercel.app/api/hookbrain", payload);
-        out.textContent =
-          `**Captions:**\n${d.captions.join("\n\n")}\n\n— — —\n\n` +
-          `**Script:**\n${d.script}\n\n— — —\n\n` +
-          `**Idea:**\n${d.idea}\n\n— — —\n\n` +
-          `**SEO & Hashtags:**\n${d.seo.join(", ")}`;
+
+        // Render with separate SEO & Hashtags
+        out.innerHTML =
+          `<div><strong>Captions:</strong>\n${d.captions.join("\n\n")}</div>` +
+          `<div class="section-title">Script:</div><div>${d.script}</div>` +
+          `<div class="section-title">Idea:</div><div>${d.idea}</div>` +
+          `<div class="section-title">SEO Keywords:</div><ul>` +
+            (d.seoKeywords||[]).map(k=>`<li>${k}</li>`).join("") +
+          `</ul>` +
+          `<div class="section-title">Hashtags:</div><ul>` +
+            (d.hashtags||[]).map(h=>`<li>${h}</li>`).join("") +
+          `</ul>`;
       } catch (e) {
         out.textContent = "Error: " + e.message;
       }
